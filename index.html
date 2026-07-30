@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categorized Client Audit & Signal Evaluator</title>
+    <title>Client Scope Audit & Automated SOW Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,6 +45,26 @@
             font-weight: 700;
             color: #F8FAFC;
         }
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .sow-btn {
+            background: #CCFF00;
+            color: #0A0F0D;
+            border: none;
+            padding: 0.65rem 1.25rem;
+            font-weight: 800;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .sow-btn:hover {
+            background: #b3e000;
+            transform: translateY(-1px);
+        }
         .score-summary-bar {
             display: flex;
             align-items: center;
@@ -59,7 +79,7 @@
             display: flex;
             padding: 2rem;
             gap: 2rem;
-            max-width: 1400px;
+            max-width: 1500px;
             margin: 0 auto;
             width: 100%;
             align-items: flex-start;
@@ -272,6 +292,79 @@
             line-height: 1.5;
         }
 
+        /* SOW Modal / Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .sow-modal-content {
+            background: #141E18;
+            border: 2px solid #CCFF00;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(204, 255, 0, 0.2);
+        }
+        .sow-modal-header {
+            background: #0A0F0D;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid #233529;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sow-modal-body {
+            padding: 2rem;
+            overflow-y: auto;
+            font-family: inherit;
+            color: #F1F5F9;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .sow-modal-footer {
+            background: #0A0F0D;
+            padding: 1rem 2rem;
+            border-top: 1px solid #233529;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .close-btn:hover { color: #F8FAFC; }
+        .sow-doc-section {
+            margin-bottom: 1.5rem;
+            background: #0A0F0D;
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid #233529;
+        }
+        .sow-doc-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #CCFF00;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
         /* Mobile & Tablet Responsive Media Queries */
         @media (max-width: 1024px) {
             main {
@@ -317,17 +410,20 @@
 
     <header>
         <div class="brand">
-            <span class="brand-badge">LIVE AUDIT FORM</span>
-            <span class="brand-title">Client Discovery & Categorized Signal Evaluator</span>
+            <span class="brand-badge">LIVE AUDIT</span>
+            <span class="brand-title">Client Discovery & Automated SOW Generator</span>
         </div>
-        <div class="score-summary-bar">
-            <div style="font-size: 0.85rem; color: #94A3B8;">Questions Answered:</div>
-            <div style="font-size: 0.95rem; font-weight: 800; color: #CCFF00;" id="answered-count">0 / 56</div>
+        <div class="nav-actions">
+            <button class="sow-btn" onclick="generateSOW()">📄 Generate Scope of Work (SOW)</button>
+            <div class="score-summary-bar">
+                <div style="font-size: 0.85rem; color: #94A3B8;">Answered:</div>
+                <div style="font-size: 0.95rem; font-weight: 800; color: #CCFF00;" id="answered-count">0 / 56</div>
+            </div>
         </div>
     </header>
 
     <main>
-        <!-- Sidebar Category Links & Scoreboard -->
+        <!-- Sidebar Category Links & Scoreboard (2 Units Only) -->
         <div class="sidebar" id="sidebar-nav">
             <!-- Injected via JS -->
         </div>
@@ -338,68 +434,86 @@
         </div>
     </main>
 
+    <!-- SOW Modal Popup -->
+    <div class="modal-overlay" id="sow-modal">
+        <div class="sow-modal-content">
+            <div class="sow-modal-header">
+                <div style="font-size: 1.15rem; font-weight: 800; color: #CCFF00;">Generated Statement of Work (SOW)</div>
+                <button class="close-btn" onclick="closeSOWModal()">&times;</button>
+            </div>
+            <div class="sow-modal-body" id="sow-body-content">
+                <!-- SOW text generated dynamically -->
+            </div>
+            <div class="sow-modal-footer">
+                <button class="eval-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+                <button class="sow-btn" onclick="closeSOWModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const rawData = [
-            {"qnum": "Q1", "category": "Logistics & Phasing", "question": "What is the maximum length of the road closures?", "ptl2": "Standard RF: 1 mile. Optional Yagi directional antenna extends line-of-sight communication range to 5\u20137 miles.", "sq3ts": "Standard 900 MHz RF: ~1 mi. Requires directional Yagi antennas or multi-hop repeater node trailers.", "pts2000": "Standard RF: ~1 mi. Requires FHSS radio upgrades or intermediate repeater trailer setups.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q2", "category": "Logistics & Phasing", "question": "Type of road, construction only, public or private?", "ptl2": "MUTCD & NEMA TS-5 compliant; dual high-visibility heads standard for public highways.", "sq3ts": "MUTCD & NEMA TS-5 compliant; 100-mph wind load rating for high-speed public corridors.", "pts2000": "MUTCD & NEMA TS-5 compliant; Type 4 heavy trailer footprint designed for public/DOT roads.", "winner": "SQ3TS"}, 
-            {"qnum": "Q3", "category": "Logistics & Phasing", "question": "Are there any intersecting roads or driveways to be considered?", "ptl2": "Networks up to 20 trailers; Ring & Barrier software easily manages complex multi-leg phasing.", "sq3ts": "Supports up to 14 traffic phases per system; handles multi-leg intersection inputs.", "pts2000": "Galaxy\u00ae Controller supports up to 16 phases with pre-programmed multi-phase settings.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q4", "category": "Logistics & Phasing", "question": "Length of shifts, or is it 24 hour requirement?", "ptl2": "24/7 continuous duty; 400W solar array + 12 AGM batteries (660 Ah) give 24 days autonomy (up to 31 days with 16-battery upgrade).", "sq3ts": "Built for 24/7 duty; 520W-600W lay-flat solar array + (16) 6V batteries give 30+ days autonomy.", "pts2000": "Built for 24/7 duty; STAR tilting solar array + bank of (8) 6V batteries give 21-30 days autonomy.", "winner": "SQ3TS"}, 
-            {"qnum": "Q5", "category": "Logistics & Phasing", "question": "Job estimated duration?", "ptl2": "Heavy-duty ~3,000 lb trailer built for long-term multi-month/multi-year projects.", "sq3ts": "Heavy-duty platform with 25-year structural design life for extended field deployment.", "pts2000": "Heavy-duty Type 4 towable trailer built for medium-to-long term highway assignments.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q6", "category": "Logistics & Phasing", "question": "Geological condition of job sites, forests, open farm land, existing roads?", "ptl2": "400W solar array features 360\u00b0 rotation and 0\u201360\u00b0 tilt to optimize charge under partial canopy; Yagi directional antenna bridges mountain terrain.", "sq3ts": "High-wattage lay-flat solar resists wind; 900 MHz penetrates light foliage but needs repeaters for ridges.", "pts2000": "STAR solar array tilts/rotates for mountain angles; heavy ridges require elevated antenna masts.", "winner": "SQ3TS"}, 
-            {"qnum": "Q7", "category": "Logistics & Phasing", "question": "How many project locations require temporary traffic signals?", "ptl2": "Ring & Barrier controller handles multi-site deployment; easily reconfigurable.", "sq3ts": "Modular setup allowing flexible relocation and redeployment across multiple work zones.", "pts2000": "Pre-programmed settings allow fast reconfiguration when moving between locations.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q8", "category": "Logistics & Phasing", "question": "Where are the project sites located (GPS coordinates or addresses)?", "ptl2": "Crucial for plotting elevation profiles and line-of-sight topographical obstructions in RF software.", "sq3ts": "Crucial for calculating Fresnel zone clearances and line-of-sight terrain blockages.", "pts2000": "Crucial for mapping terrain profile between trailer positions to determine repeater needs.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q9", "category": "Logistics & Phasing", "question": "Is this a single project or multiple phases?", "ptl2": "Supports easy expansion up to 20 units as project phases expand or shift.", "sq3ts": "Modular architecture allows adding/removing signal trailers seamlessly across phases.", "pts2000": "Galaxy\u00ae controller stores multiple site programs for fast phase transitions.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q10", "category": "Logistics & Phasing", "question": "What is the anticipated project duration at each location?", "ptl2": "Stowed length 175 in (4.45 m), width 85 in (2.16 m), weight 2,940 lbs (1,333.5 kg); stows compactly for transport.", "sq3ts": "Sizes solar bank requirements based on seasonal daylight variations per site.", "pts2000": "Dictates whether standard 8-battery or expanded battery options are needed.", "winner": "SQ3TS"}, 
-            {"qnum": "Q11", "category": "Logistics & Phasing", "question": "What are the expected start and completion dates?", "ptl2": "Winter/autumn starts require maximum solar wattage and 16-battery banks due to low sun angles.", "sq3ts": "520W-600W array handles low winter solar insolation windows effectively.", "pts2000": "STAR tilt array can be angled low toward southern horizon for winter deployments.", "winner": "SQ3TS"}, 
-            {"qnum": "Q12", "category": "Logistics & Phasing", "question": "Will the signals remain in one location or be moved throughout the project?", "ptl2": "Electric actuator lift enables fast mast lowering for frequent highway towing relocation.", "sq3ts": "Hydraulic setup allows rapid tear-down and relocation along moving work zones.", "pts2000": "Type 4 trailer with retractable tongue designed for rapid highway relocation.", "winner": "PTS-2000"}, 
-            {"qnum": "Q13", "category": "Roadway & Traffic Ops", "question": "What is the roadway classification (township, county, state, private)?", "ptl2": "NEMA TS-5 compliant; accepted by PennDOT and major state DOTs for highway use.", "sq3ts": "NEMA TS-5 compliant; meets all state DOT safety and conflict specifications.", "pts2000": "NEMA TS-5 TR1 compliant; fully certified for county and state DOT specifications.", "winner": "SQ3TS"}, 
-            {"qnum": "Q14", "category": "Roadway & Traffic Ops", "question": "What is the posted speed limit?", "ptl2": "Dual 12\" LED signal heads (High-Low or High-High config) with Head B extending 66 in over laneway; meets MUTCD standards.", "sq3ts": "Dual overhead heads with 100-mph wind load rating designed for high-speed corridors.", "pts2000": "Dual-head configuration provides maximum advance visual warning for high-speed traffic.", "winner": "SQ3TS"}, 
-            {"qnum": "Q15", "category": "Roadway & Traffic Ops", "question": "What is the average daily traffic (ADT), if known?", "ptl2": "High ADT routes benefit from optional radar/video actuation to minimize delays.", "sq3ts": "High ADT routes utilize overhead radar queue detection to extend green cycles dynamically.", "pts2000": "Supports microwave radar detection to adjust timing based on real-time traffic volume.", "winner": "SQ3TS"}, 
-            {"qnum": "Q16", "category": "Roadway & Traffic Ops", "question": "Is the roadway paved or gravel?", "ptl2": "Heavy structural frame (~3,000 lbs) resists trailer shifting on unpaved shoulders.", "sq3ts": "Wide outrigger stance provides stability on loose gravel shoulders.", "pts2000": "Heavy-duty jack stands stabilize trailer on uneven gravel terrain.", "winner": "PTS-2000"}, 
-            {"qnum": "Q17", "category": "Roadway & Traffic Ops", "question": "What is the roadway width?", "ptl2": "19-ft mast height ensures overhead signal heads extend properly over wide lanes.", "sq3ts": "Extendable overhead mast reaches across wide single-lane or multi-lane configurations.", "pts2000": "Adjustable mast arm provides proper overhead placement across varying lane widths.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q18", "category": "Roadway & Traffic Ops", "question": "Why is alternating one-way traffic required?", "ptl2": "Controls single-lane bottlenecks (bridge repair, land sliding, pipe replacement).", "sq3ts": "Controls automated one-lane alternating flow for restricted work zones.", "pts2000": "Manages alternating queue control with programmable red-clearance intervals.", "winner": "SQ3TS"}, 
-            {"qnum": "Q19", "category": "Roadway & Traffic Ops", "question": "What is the length of the one-lane closure?", "ptl2": "Directly dictates all-red clearance interval timing programmed into controller.", "sq3ts": "Calculates required green extension and all-red clearance times in controller.", "pts2000": "Pre-programmed timing tables calculate clearance time based on zone length.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q20", "category": "Roadway & Traffic Ops", "question": "Will the work zone length change during construction?", "ptl2": "Controller parameters easily updated on-site via 480p LCD screen as zone grows.", "sq3ts": "On-board keypad allows fast adjustments to all-red clearance times in the field.", "pts2000": "Galaxy\u00ae controller menu allows quick distance parameter updates on-site.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q21", "category": "Roadway & Traffic Ops", "question": "Will construction equipment regularly enter and exit the work zone?", "ptl2": "Supports work-zone equipment gate signals and manual push-button hold-green overrides.", "sq3ts": "Supports specialized work-zone ingress/egress signal phases and manual remotes.", "pts2000": "Can be equipped with contractor signal remotes for equipment entry priority.", "winner": "SQ3TS"}, 
-            {"qnum": "Q22", "category": "Roadway & Traffic Ops", "question": "Are oversized trucks or drilling equipment expected?", "ptl2": "Deployed wind load rating of 90 mph (144.84 km/h); high mast clearance (up to 21 ft).", "sq3ts": "100-mph wind load frame withstands heavy wind turbulence from passing oversized loads.", "pts2000": "Robust mast structure prevents swaying from heavy truck air blasts.", "winner": "SQ3TS"}, 
-            {"qnum": "Q23", "category": "Roadway & Traffic Ops", "question": "Will traffic need to stop for blasting or specialized operations?", "ptl2": "Manual override push-button holds all approaches on RED during blasting/operations.", "sq3ts": "Local manual control switch allows immediate all-red hold for safety operations.", "pts2000": "Hand-held remote control allows flaggers/blasters to hold all-red from a safe distance.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q24", "category": "Roadway & Traffic Ops", "question": "Will traffic be maintained 24 hours per day?", "ptl2": "Nighttime dimming sensors automatically adjust LED brightness to prevent driver glare.", "sq3ts": "Automatic photocell dimming adjusts LED intensity for nighttime visibility.", "pts2000": "Photocell controlled automatic LED dimming for nighttime energy savings and safety.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q25", "category": "Roadway & Traffic Ops", "question": "Will the signals operate continuously or only during work hours?", "ptl2": "Programmable night/off-hour flash modes (e.g., yellow/red flash or shut-down schedule).", "sq3ts": "Supports scheduled operational modes and off-hour standby cycles.", "pts2000": "Galaxy\u00ae controller allows scheduled time-of-day operational mode switching.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q26", "category": "Roadway & Traffic Ops", "question": "What are the anticipated peak traffic periods?", "ptl2": "Time-of-day signal timing plans adjust green allocation during morning/evening peaks.", "sq3ts": "Multiple daily timing plans dynamically shift cycle lengths for peak directional flow.", "pts2000": "Supports time-base scheduling for morning/evening peak traffic adjustments.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q27", "category": "Roadway & Traffic Ops", "question": "Is emergency vehicle access required?", "ptl2": "Interfaces with emergency vehicle preemption receivers (optical/radio priority).", "sq3ts": "Supports emergency vehicle preemption inputs to immediately force green light.", "pts2000": "Compatible with standard emergency preemption hardware for priority passage.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q28", "category": "Roadway & Traffic Ops", "question": "Is school bus traffic expected?", "ptl2": "Extended clearance timing plans avoid trapping long school buses inside single-lane zone.", "sq3ts": "Programmable clearance intervals ensure safe throughput for slow accelerating buses.", "pts2000": "Custom timing plans accommodate school bus pickup schedules.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q29", "category": "Roadway & Traffic Ops", "question": "Are there local residents requiring frequent access?", "ptl2": "Driveway signal trailers or driveway actuation buttons integrate seamlessly into network.", "sq3ts": "Supports side-street/driveway signal integration with short green call intervals.", "pts2000": "Auxiliary signal heads handle local residential driveway integration.", "winner": "SQ3TS"}, 
-            {"qnum": "Q30", "category": "Comms, Power & Env", "question": "Has anyone verified cellular service at the project site?", "ptl2": "CRITICAL: Zero cell service disables cellular remote monitoring; system operates seamlessly on local closed-loop 900 MHz RF.", "sq3ts": "CRITICAL: Zero cell disables web app/cameras; system reverts to local 900 MHz closed-loop RF.", "pts2000": "CRITICAL: Zero cell disables remote management; system operates strictly on local RF link.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q31", "category": "Comms, Power & Env", "question": "Which carriers provide coverage (AT&T, Verizon, T-Mobile)?", "ptl2": "Relevant only if remote monitoring is desired and cell signal exists (not applicable in zero-cell zone).", "sq3ts": "Relevant only if Street Smart app or Horizon remote monitoring is utilized.", "pts2000": "Relevant only if Galaxy Connect\u2122 cellular modem is deployed.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q32", "category": "Comms, Power & Env", "question": "Is any reliable cellular signal available?", "ptl2": "No cellular needed for core operation; closed-loop RF links units up to 7 miles apart using directional Yagi antennas.", "sq3ts": "No cellular means camera streaming is disabled; relies entirely on local radio sync.", "pts2000": "No cellular means Galaxy Connect app is offline; relies on local controller timing.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q33", "category": "Comms, Power & Env", "question": "Is commercial power available nearby?", "ptl2": "Built-in 110V AC trickle chargers standard if AC shore power is accessible.", "sq3ts": "Includes standard AC shore power charger for supplemental battery charging.", "pts2000": "Equipped with onboard AC charger plug for fast generator/grid power recharge.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q34", "category": "Comms, Power & Env", "question": "Are generators permitted?", "ptl2": "Supports auxiliary generator connection to keep battery banks topped off in deep shade.", "sq3ts": "Onboard charger interfaces with portable diesel/gas generators for shade backup.", "pts2000": "Auxiliary generator backup supported for extreme low-sun winter conditions.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q35", "category": "Permits & Specs", "question": "Who is the permitting authority?", "ptl2": "Meets DOT, PennDOT, and county engineering specifications across all jurisdictions.", "sq3ts": "Fully certified across state and municipal road authority standards.", "pts2000": "Meets township, county, and state highway permitting requirements.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q36", "category": "Permits & Specs", "question": "Has a Maintenance and Protection of Traffic (MPT) or Traffic Control Plan been approved?", "ptl2": "Signal timing and trailer placement must strictly mirror approved MPT drawings.", "sq3ts": "Phasing and clearance intervals configured to match engineer-stamped MPT plan.", "pts2000": "Controller programmed in direct accordance with approved MPT timing schedule.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q37", "category": "Permits & Specs", "question": "Is a professional engineer required to approve the signal layout?", "ptl2": "Provides full technical spec sheets and wind-load calculations for PE stamping.", "sq3ts": "100-mph wind load documentation and PE-stamped structural calculations available.", "pts2000": "PE documentation and NEMA TS-5 compliance sheets ready for submittal.", "winner": "SQ3TS"}, 
-            {"qnum": "Q38", "category": "Permits & Specs", "question": "Will PennDOT, the county, or a township inspect the installation?", "ptl2": "NEMA TS-5 and MUTCD compliant; integrated Malfunction Management System (MMS) and External Transfer Flasher Relay (TFR).", "sq3ts": "Dual-processor MMS conflict monitor satisfies strict state/county inspector audits.", "pts2000": "NEMA TS-5 compliance ensures immediate pass rate during DOT site inspections.", "winner": "SQ3TS"}, 
-            {"qnum": "Q39", "category": "Permits & Specs", "question": "Are there any special permit conditions?", "ptl2": "Flexible programming accommodates unique permit rules (e.g., maximum queue lengths).", "sq3ts": "Supports customized cycle limits or specific operational hours mandated by permit.", "pts2000": "Galaxy\u00ae controller easily adapts to specialized local permit restrictions.", "winner": "SQ3TS"}, 
-            {"qnum": "Q40", "category": "Permits & Specs", "question": "Can our technicians access the site with pickup trucks?", "ptl2": "Standard 2-5/16\" ball hitch or pintle hook allows easy towing via 3/4-ton pickup truck.", "sq3ts": "Towable by standard commercial pickup trucks with heavy-duty hitch receiver.", "pts2000": "Type 4 trailer designed for towing behind standard utility/service pickup trucks.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q41", "category": "Permits & Specs", "question": "Are there weight restrictions?", "ptl2": "Trailer weight (~3,000 lbs) complies with standard bridge and unpaved road limits.", "sq3ts": "Compact heavy frame (~2,500 lbs) easily crosses weight-restricted rural bridges.", "pts2000": "Type 4 trailer weight fits well within rural road weight limit allowances.", "winner": "PTS-2000"}, 
-            {"qnum": "Q42", "category": "Permits & Specs", "question": "Will escorts be required?", "ptl2": "Rapid setup features allow fast off-road positioning to minimize escort window.", "sq3ts": "Quick-deploy outriggers reduce lane-blocking time during initial setup.", "pts2000": "Fast mechanical setup minimizes downtime and escort overhead during placement.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q43", "category": "Permits & Specs", "question": "Is the site accessible during all weather conditions?", "ptl2": "Rugged enclosure protects batteries and electronics from severe snow/ice storms.", "sq3ts": "Heavy structural frame withstands severe mountain weather, snow, and 100-mph winds.", "pts2000": "Weatherproof NEMA cabinets protect controller from extreme freezing/mud.", "winner": "SQ3TS"}, 
-            {"qnum": "Q44", "category": "Permits & Specs", "question": "Who is the onsite contact for deliveries and service calls?", "ptl2": "Onboard storage box holds laminated quick-start guide for on-site personnel.", "sq3ts": "Clear cabinet labeling allows on-site contacts to communicate status via phone.", "pts2000": "User-friendly controller layout allows designated site contact to perform simple checks.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q45", "category": "Permits & Specs", "question": "Will you require 24/7 emergency support?", "ptl2": "Rugged closed-loop design minimizes service calls; local failure alarms on-site.", "sq3ts": "Dual-processor MMS prevents unsafe signal states during emergency faults.", "pts2000": "Built-in diagnostic logs allow quick troubleshooting during service calls.", "winner": "SQ3TS"}, 
-            {"qnum": "Q46", "category": "Permits & Specs", "question": "How quickly must service personnel respond if a signal malfunctions?", "ptl2": "System automatically drops to red-flash safety mode upon fault detection.", "sq3ts": "Dual MMS guarantees fail-safe red flash protection while technician is en route.", "pts2000": "Automatic conflict shutdown ensures site safety during response window.", "winner": "SQ3TS"}, 
-            {"qnum": "Q47", "category": "Permits & Specs", "question": "Who will monitor the equipment during off-hours?", "ptl2": "In zero-cell zones, physical daily/weekly drive-by checks replace app alerts.", "sq3ts": "In zero-cell zones, visual inspection of external LED status lamps is required.", "pts2000": "External voltage meter allows instant visual inspection by off-hour guards.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q48", "category": "Permits & Specs", "question": "Will daily inspections be required?", "ptl2": "External battery meters and clear status LEDs make daily drive-by checks instant.", "sq3ts": "External voltage display allows 5-second visual drive-by verification.", "pts2000": "Standard external voltage meter allows quick daily visual check from pickup cab.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q49", "category": "Industry & Heavy Ops", "question": "Which operator or energy company owns the lease?", "ptl2": "Satisfies strict oil/gas operator safety and environmental compliance standards.", "sq3ts": "Meets heavy industrial and energy sector work-zone safety specifications.", "pts2000": "Meets industrial leasehold access traffic management requirements.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q50", "category": "Permits & Specs", "question": "Will heavy haul water trucks use the route?", "ptl2": "Heavy-duty construction withstands constant ground vibration from heavy haulers.", "sq3ts": "100-mph wind load frame resists severe air blast and vibration from passing tankers.", "pts2000": "Type 4 trailer chassis resists vibration-induced component loosening.", "winner": "SQ3TS"}, 
-            {"qnum": "Q51", "category": "Industry & Heavy Ops", "question": "What is the maximum truck volume expected per hour?", "ptl2": "Radar actuation adjusts green extension to prevent long queues of heavy water trucks.", "sq3ts": "Queue-detection radar extends green signal until heavy truck convoy clears.", "pts2000": "Microwave radar holds green light for heavy truck lines to maintain momentum.", "winner": "SQ3TS"}, 
-            {"qnum": "Q52", "category": "Industry & Heavy Ops", "question": "Are there periods when convoy traffic is expected?", "ptl2": "Programmable maximum green extensions accommodate long multi-truck convoys.", "sq3ts": "Extended green hold parameters prevent splitting heavy truck convoys.", "pts2000": "Galaxy\u00ae controller adjusts phase duration to clear entire truck convoys.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q53", "category": "Industry & Heavy Ops", "question": "Will drilling or fracking operations require around-the-clock access?", "ptl2": "30-day autonomous battery/solar reserve ensures non-stop 24/7 industrial runtime.", "sq3ts": "600W solar capacity supports continuous high-frequency 24/7 industrial traffic.", "pts2000": "Heavy battery bank supports non-stop 24/7 industrial haulage cycles.", "winner": "SQ3TS"}, 
-            {"qnum": "Q54", "category": "Industry & Heavy Ops", "question": "Are there any hazardous-material transportation requirements?", "ptl2": "Failsafe red-flash conflict monitoring prevents hazardous material collisions.", "sq3ts": "Dual-processor MMS conflict monitoring provides maximum safety for HAZMAT routes.", "pts2000": "NEMA TS-5 compliance ensures strict safety controls for HAZMAT transport.", "winner": "SQ3TS"}, 
-            {"qnum": "Q55", "category": "Industry & Heavy Ops", "question": "Is there a designated emergency evacuation route?", "ptl2": "Manual hold-green preemption clears evacuation traffic instantly if needed.", "sq3ts": "Emergency preemption inputs allow immediate flush of evacuation corridors.", "pts2000": "Manual override capabilities enable quick clearing of emergency traffic.", "winner": "PTL2-4X"}, 
-            {"qnum": "Q56", "category": "Industry & Heavy Ops", "question": "Will dust, mud, or snow impact signal visibility or operation?", "ptl2": "Sealed NEMA 4 weather-proof cabinets protect electronics; visor hoods protect LEDs.", "sq3ts": "Enclosed weatherproof battery/control boxes keep out heavy dust, mud, and snow.", "pts2000": "Weatherproof cabinet design with hooded LED visors prevents snow buildup.", "winner": "PTL2-4X"}
+            {"qnum": "Q1", "category": "Logistics & Phasing", "question": "What is the maximum length of the road closures?", "ptl2": "Standard RF: 1 mile. Optional Yagi directional antenna extends line-of-sight communication range to 5–7 miles.", "sq3ts": "Standard 900 MHz RF: ~1 mi. Requires directional Yagi antennas or multi-hop repeater node trailers.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q2", "category": "Logistics & Phasing", "question": "Type of road, construction only, public or private?", "ptl2": "MUTCD & NEMA TS-5 compliant; dual high-visibility heads standard for public highways.", "sq3ts": "MUTCD & NEMA TS-5 compliant; 100-mph wind load rating for high-speed public corridors.", "winner": "SQ3TS"}, 
+            {"qnum": "Q3", "category": "Logistics & Phasing", "question": "Are there any intersecting roads or driveways to be considered?", "ptl2": "Networks up to 20 trailers; Ring & Barrier software easily manages complex multi-leg phasing.", "sq3ts": "Supports up to 14 traffic phases per system; handles multi-leg intersection inputs.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q4", "category": "Logistics & Phasing", "question": "Length of shifts, or is it 24 hour requirement?", "ptl2": "24/7 continuous duty; 400W solar array + 12 AGM batteries (660 Ah) give 24 days autonomy (up to 31 days with 16-battery upgrade).", "sq3ts": "Built for 24/7 duty; 520W-600W lay-flat solar array + (16) 6V batteries give 30+ days autonomy.", "winner": "SQ3TS"}, 
+            {"qnum": "Q5", "category": "Logistics & Phasing", "question": "Job estimated duration?", "ptl2": "Heavy-duty ~3,000 lb trailer built for long-term multi-month/multi-year projects.", "sq3ts": "Heavy-duty platform with 25-year structural design life for extended field deployment.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q6", "category": "Logistics & Phasing", "question": "Geological condition of job sites, forests, open farm land, existing roads?", "ptl2": "400W solar array features 360° rotation and 0–60° tilt to optimize charge under partial canopy; Yagi directional antenna bridges mountain terrain.", "sq3ts": "High-wattage lay-flat solar resists wind; 900 MHz penetrates light foliage but needs repeaters for ridges.", "winner": "SQ3TS"}, 
+            {"qnum": "Q7", "category": "Logistics & Phasing", "question": "How many project locations require temporary traffic signals?", "ptl2": "Ring & Barrier controller handles multi-site deployment; easily reconfigurable.", "sq3ts": "Modular setup allowing flexible relocation and redeployment across multiple work zones.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q8", "category": "Logistics & Phasing", "question": "Where are the project sites located (GPS coordinates or addresses)?", "ptl2": "Crucial for plotting elevation profiles and line-of-sight topographical obstructions in RF software.", "sq3ts": "Crucial for calculating Fresnel zone clearances and line-of-sight terrain blockages.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q9", "category": "Logistics & Phasing", "question": "Is this a single project or multiple phases?", "ptl2": "Supports easy expansion up to 20 units as project phases expand or shift.", "sq3ts": "Modular architecture allows adding/removing signal trailers seamlessly across phases.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q10", "category": "Logistics & Phasing", "question": "What is the anticipated project duration at each location?", "ptl2": "Stowed length 175 in (4.45 m), width 85 in (2.16 m), weight 2,940 lbs (1,333.5 kg); stows compactly for transport.", "sq3ts": "Sizes solar bank requirements based on seasonal daylight variations per site.", "winner": "SQ3TS"}, 
+            {"qnum": "Q11", "category": "Logistics & Phasing", "question": "What are the expected start and completion dates?", "ptl2": "Winter/autumn starts require maximum solar wattage and 16-battery banks due to low sun angles.", "sq3ts": "520W-600W array handles low winter solar insolation windows effectively.", "winner": "SQ3TS"}, 
+            {"qnum": "Q12", "category": "Logistics & Phasing", "question": "Will the signals remain in one location or be moved throughout the project?", "ptl2": "Electric actuator lift enables fast mast lowering for frequent highway towing relocation.", "sq3ts": "Hydraulic setup allows rapid tear-down and relocation along moving work zones.", "winner": "SQ3TS"}, 
+            {"qnum": "Q13", "category": "Roadway & Traffic Ops", "question": "What is the roadway classification (township, county, state, private)?", "ptl2": "NEMA TS-5 compliant; accepted by PennDOT and major state DOTs for highway use.", "sq3ts": "NEMA TS-5 compliant; meets all state DOT safety and conflict specifications.", "winner": "SQ3TS"}, 
+            {"qnum": "Q14", "category": "Roadway & Traffic Ops", "question": "What is the posted speed limit?", "ptl2": "Dual 12\" LED signal heads (High-Low or High-High config) with Head B extending 66 in over laneway; meets MUTCD standards.", "sq3ts": "Dual overhead heads with 100-mph wind load rating designed for high-speed corridors.", "winner": "SQ3TS"}, 
+            {"qnum": "Q15", "category": "Roadway & Traffic Ops", "question": "What is the average daily traffic (ADT), if known?", "ptl2": "High ADT routes benefit from optional radar/video actuation to minimize delays.", "sq3ts": "High ADT routes utilize overhead radar queue detection to extend green cycles dynamically.", "winner": "SQ3TS"}, 
+            {"qnum": "Q16", "category": "Roadway & Traffic Ops", "question": "Is the roadway paved or gravel?", "ptl2": "Heavy structural frame (~3,000 lbs) resists trailer shifting on unpaved shoulders.", "sq3ts": "Wide outrigger stance provides stability on loose gravel shoulders.", "winner": "SQ3TS"}, 
+            {"qnum": "Q17", "category": "Roadway & Traffic Ops", "question": "What is the roadway width?", "ptl2": "19-ft mast height ensures overhead signal heads extend properly over wide lanes.", "sq3ts": "Extendable overhead mast reaches across wide single-lane or multi-lane configurations.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q18", "category": "Roadway & Traffic Ops", "question": "Why is alternating one-way traffic required?", "ptl2": "Controls single-lane bottlenecks (bridge repair, land sliding, pipe replacement).", "sq3ts": "Controls automated one-lane alternating flow for restricted work zones.", "winner": "SQ3TS"}, 
+            {"qnum": "Q19", "category": "Roadway & Traffic Ops", "question": "What is the length of the one-lane closure?", "ptl2": "Directly dictates all-red clearance interval timing programmed into controller.", "sq3ts": "Calculates required green extension and all-red clearance times in controller.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q20", "category": "Roadway & Traffic Ops", "question": "Will the work zone length change during construction?", "ptl2": "Controller parameters easily updated on-site via 480p LCD screen as zone grows.", "sq3ts": "On-board keypad allows fast adjustments to all-red clearance times in the field.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q21", "category": "Roadway & Traffic Ops", "question": "Will construction equipment regularly enter and exit the work zone?", "ptl2": "Supports work-zone equipment gate signals and manual push-button hold-green overrides.", "sq3ts": "Supports specialized work-zone ingress/egress signal phases and manual remotes.", "winner": "SQ3TS"}, 
+            {"qnum": "Q22", "category": "Roadway & Traffic Ops", "question": "Are oversized trucks or drilling equipment expected?", "ptl2": "Deployed wind load rating of 90 mph (144.84 km/h); high mast clearance (up to 21 ft).", "sq3ts": "100-mph wind load frame withstands heavy wind turbulence from passing oversized loads.", "winner": "SQ3TS"}, 
+            {"qnum": "Q23", "category": "Roadway & Traffic Ops", "question": "Will traffic need to stop for blasting or specialized operations?", "ptl2": "Manual override push-button holds all approaches on RED during blasting/operations.", "sq3ts": "Local manual control switch allows immediate all-red hold for safety operations.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q24", "category": "Roadway & Traffic Ops", "question": "Will traffic be maintained 24 hours per day?", "ptl2": "Nighttime dimming sensors automatically adjust LED brightness to prevent driver glare.", "sq3ts": "Automatic photocell dimming adjusts LED intensity for nighttime visibility.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q25", "category": "Roadway & Traffic Ops", "question": "Will the signals operate continuously or only during work hours?", "ptl2": "Programmable night/off-hour flash modes (e.g., yellow/red flash or shut-down schedule).", "sq3ts": "Supports scheduled operational modes and off-hour standby cycles.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q26", "category": "Roadway & Traffic Ops", "question": "What are the anticipated peak traffic periods?", "ptl2": "Time-of-day signal timing plans adjust green allocation during morning/evening peaks.", "sq3ts": "Multiple daily timing plans dynamically shift cycle lengths for peak directional flow.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q27", "category": "Roadway & Traffic Ops", "question": "Is emergency vehicle access required?", "ptl2": "Interfaces with emergency vehicle preemption receivers (optical/radio priority).", "sq3ts": "Supports emergency vehicle preemption inputs to immediately force green light.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q28", "category": "Roadway & Traffic Ops", "question": "Is school bus traffic expected?", "ptl2": "Extended clearance timing plans avoid trapping long school buses inside single-lane zone.", "sq3ts": "Programmable clearance intervals ensure safe throughput for slow accelerating buses.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q29", "category": "Roadway & Traffic Ops", "question": "Are there local residents requiring frequent access?", "ptl2": "Driveway signal trailers or driveway actuation buttons integrate seamlessly into network.", "sq3ts": "Supports side-street/driveway signal integration with short green call intervals.", "winner": "SQ3TS"}, 
+            {"qnum": "Q30", "category": "Comms, Power & Env", "question": "Has anyone verified cellular service at the project site?", "ptl2": "CRITICAL: Zero cell service disables cellular remote monitoring; system operates seamlessly on local closed-loop 900 MHz RF.", "sq3ts": "CRITICAL: Zero cell disables web app/cameras; system reverts to local 900 MHz closed-loop RF.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q31", "category": "Comms, Power & Env", "question": "Which carriers provide coverage (AT&T, Verizon, T-Mobile)?", "ptl2": "Relevant only if remote monitoring is desired and cell signal exists (not applicable in zero-cell zone).", "sq3ts": "Relevant only if Street Smart app or Horizon remote monitoring is utilized.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q32", "category": "Comms, Power & Env", "question": "Is any reliable cellular signal available?", "ptl2": "No cellular needed for core operation; closed-loop RF links units up to 7 miles apart using directional Yagi antennas.", "sq3ts": "No cellular means camera streaming is disabled; relies entirely on local radio sync.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q33", "category": "Comms, Power & Env", "question": "Is commercial power available nearby?", "ptl2": "Built-in 110V AC trickle chargers standard if AC shore power is accessible.", "sq3ts": "Includes standard AC shore power charger for supplemental battery charging.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q34", "category": "Comms, Power & Env", "question": "Are generators permitted?", "ptl2": "Supports auxiliary generator connection to keep battery banks topped off in deep shade.", "sq3ts": "Onboard charger interfaces with portable diesel/gas generators for shade backup.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q35", "category": "Permits & Specs", "question": "Who is the permitting authority?", "ptl2": "Meets DOT, PennDOT, and county engineering specifications across all jurisdictions.", "sq3ts": "Fully certified across state and municipal road authority standards.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q36", "category": "Permits & Specs", "question": "Has a Maintenance and Protection of Traffic (MPT) or Traffic Control Plan been approved?", "ptl2": "Signal timing and trailer placement must strictly mirror approved MPT drawings.", "sq3ts": "Phasing and clearance intervals configured to match engineer-stamped MPT plan.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q37", "category": "Permits & Specs", "question": "Is a professional engineer required to approve the signal layout?", "ptl2": "Provides full technical spec sheets and wind-load calculations for PE stamping.", "sq3ts": "100-mph wind load documentation and PE-stamped structural calculations available.", "winner": "SQ3TS"}, 
+            {"qnum": "Q38", "category": "Permits & Specs", "question": "Will PennDOT, the county, or a township inspect the installation?", "ptl2": "NEMA TS-5 and MUTCD compliant; integrated Malfunction Management System (MMS) and External Transfer Flasher Relay (TFR).", "sq3ts": "Dual-processor MMS conflict monitor satisfies strict state/county inspector audits.", "winner": "SQ3TS"}, 
+            {"qnum": "Q39", "category": "Permits & Specs", "question": "Are there any special permit conditions?", "ptl2": "Flexible programming accommodates unique permit rules (e.g., maximum queue lengths).", "sq3ts": "Supports customized cycle limits or specific operational hours mandated by permit.", "winner": "SQ3TS"}, 
+            {"qnum": "Q40", "category": "Permits & Specs", "question": "Can our technicians access the site with pickup trucks?", "ptl2": "Standard 2-5/16\" ball hitch or pintle hook allows easy towing via 3/4-ton pickup truck.", "sq3ts": "Towable by standard commercial pickup trucks with heavy-duty hitch receiver.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q41", "category": "Permits & Specs", "question": "Are there weight restrictions?", "ptl2": "Trailer weight (~3,000 lbs) complies with standard bridge and unpaved road limits.", "sq3ts": "Compact heavy frame (~2,500 lbs) easily crosses weight-restricted rural bridges.", "winner": "SQ3TS"}, 
+            {"qnum": "Q42", "category": "Permits & Specs", "question": "Will escorts be required?", "ptl2": "Rapid setup features allow fast off-road positioning to minimize escort window.", "sq3ts": "Quick-deploy outriggers reduce lane-blocking time during initial setup.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q43", "category": "Permits & Specs", "question": "Is the site accessible during all weather conditions?", "ptl2": "Rugged enclosure protects batteries and electronics from severe snow/ice storms.", "sq3ts": "Heavy structural frame withstands severe mountain weather, snow, and 100-mph winds.", "winner": "SQ3TS"}, 
+            {"qnum": "Q44", "category": "Permits & Specs", "question": "Who is the onsite contact for deliveries and service calls?", "ptl2": "Onboard storage box holds laminated quick-start guide for on-site personnel.", "sq3ts": "Clear cabinet labeling allows on-site contacts to communicate status via phone.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q45", "category": "Permits & Specs", "question": "Will you require 24/7 emergency support?", "ptl2": "Rugged closed-loop design minimizes service calls; local failure alarms on-site.", "sq3ts": "Dual-processor MMS prevents unsafe signal states during emergency faults.", "winner": "SQ3TS"}, 
+            {"qnum": "Q46", "category": "Permits & Specs", "question": "How quickly must service personnel respond if a signal malfunctions?", "ptl2": "System automatically drops to red-flash safety mode upon fault detection.", "sq3ts": "Dual MMS guarantees fail-safe red flash protection while technician is en route.", "winner": "SQ3TS"}, 
+            {"qnum": "Q47", "category": "Permits & Specs", "question": "Who will monitor the equipment during off-hours?", "ptl2": "In zero-cell zones, physical daily/weekly drive-by checks replace app alerts.", "sq3ts": "In zero-cell zones, visual inspection of external LED status lamps is required.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q48", "category": "Permits & Specs", "question": "Will daily inspections be required?", "ptl2": "External battery meters and clear status LEDs make daily drive-by checks instant.", "sq3ts": "External voltage display allows 5-second visual drive-by verification.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q49", "category": "Industry & Heavy Ops", "question": "Which operator or energy company owns the lease?", "ptl2": "Satisfies strict oil/gas operator safety and environmental compliance standards.", "sq3ts": "Meets heavy industrial and energy sector work-zone safety specifications.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q50", "category": "Industry & Heavy Ops", "question": "Will heavy haul water trucks use the route?", "ptl2": "Heavy-duty construction withstands constant ground vibration from heavy haulers.", "sq3ts": "100-mph wind load frame resists severe air blast and vibration from passing tankers.", "winner": "SQ3TS"}, 
+            {"qnum": "Q51", "category": "Industry & Heavy Ops", "question": "What is the maximum truck volume expected per hour?", "ptl2": "Radar actuation adjusts green extension to prevent long queues of heavy water trucks.", "sq3ts": "Queue-detection radar extends green signal until heavy truck convoy clears.", "winner": "SQ3TS"}, 
+            {"qnum": "Q52", "category": "Industry & Heavy Ops", "question": "Are there periods when convoy traffic is expected?", "ptl2": "Programmable maximum green extensions accommodate long multi-truck convoys.", "sq3ts": "Extended green hold parameters prevent splitting heavy truck convoys.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q53", "category": "Industry & Heavy Ops", "question": "Will drilling or fracking operations require around-the-clock access?", "ptl2": "30-day autonomous battery/solar reserve ensures non-stop 24/7 industrial runtime.", "sq3ts": "600W solar capacity supports continuous high-frequency 24/7 industrial traffic.", "winner": "SQ3TS"}, 
+            {"qnum": "Q54", "category": "Industry & Heavy Ops", "question": "Are there any hazardous-material transportation requirements?", "ptl2": "Failsafe red-flash conflict monitoring prevents hazardous material collisions.", "sq3ts": "Dual-processor MMS conflict monitoring provides maximum safety for HAZMAT routes.", "winner": "SQ3TS"}, 
+            {"qnum": "Q55", "category": "Industry & Heavy Ops", "question": "Is there a designated emergency evacuation route?", "ptl2": "Manual hold-green preemption clears evacuation traffic instantly if needed.", "sq3ts": "Emergency preemption inputs allow immediate flush of evacuation corridors.", "winner": "PTL2-4X"}, 
+            {"qnum": "Q56", "category": "Industry & Heavy Ops", "question": "Will dust, mud, or snow impact signal visibility or operation?", "ptl2": "Sealed NEMA 4 weather-proof cabinets protect electronics; visor hoods protect LEDs.", "sq3ts": "Enclosed weatherproof battery/control boxes keep out heavy dust, mud, and snow.", "winner": "PTL2-4X"}
         ];
 
         let answeredCount = 0;
         let questionWinners = {};
+        let clientAnswersStore = {};
 
         // Group data by category
         const categories = {};
@@ -412,27 +526,21 @@
         const sidebar = document.getElementById('sidebar-nav');
         const mainForm = document.getElementById('audit-form-container');
 
-        // Build the Sidebar Scoreboard HTML
+        // Build the Sidebar Scoreboard HTML (2 Units Only)
         const scoreboardHTML = `
             <div class="scoreboard">
-                <div class="sb-title">Live Compatibility</div>
+                <div class="sb-title">Live Compatibility (2 Units)</div>
                 
                 <div class="sb-row">
-                    <div class="sb-row-header"><span>PTL2.4x</span> <span id="sb-ptl-pct" style="color: #CCFF00;">0%</span></div>
+                    <div class="sb-row-header"><span>NAT PTL2.4x</span> <span id="sb-ptl-pct" style="color: #CCFF00;">0%</span></div>
                     <div class="progress-bg"><div class="progress-fill" id="sb-ptl-bar"></div></div>
                     <div class="sb-tally" id="sb-ptl-tally">0 of 0 matches</div>
                 </div>
 
                 <div class="sb-row">
-                    <div class="sb-row-header"><span>SQ3TS</span> <span id="sb-sq3-pct" style="color: #CCFF00;">0%</span></div>
+                    <div class="sb-row-header"><span>Horizon SQ3TS</span> <span id="sb-sq3-pct" style="color: #CCFF00;">0%</span></div>
                     <div class="progress-bg"><div class="progress-fill" id="sb-sq3-bar"></div></div>
                     <div class="sb-tally" id="sb-sq3-tally">0 of 0 matches</div>
-                </div>
-
-                <div class="sb-row">
-                    <div class="sb-row-header"><span>PTS-2000</span> <span id="sb-pts-pct" style="color: #CCFF00;">0%</span></div>
-                    <div class="progress-bg"><div class="progress-fill" id="sb-pts-bar"></div></div>
-                    <div class="sb-tally" id="sb-pts-tally">0 of 0 matches</div>
                 </div>
             </div>
             <div class="sidebar-title" style="margin-top: 1rem;">Categories</div>
@@ -443,14 +551,12 @@
         Object.keys(categories).forEach(cat => {
             const catId = cat.replace(/\s+/g, '-').replace('&', 'and').toLowerCase();
             
-            // Add sidebar link
             const link = document.createElement('a');
             link.href = `#${catId}`;
             link.className = 'cat-link';
             link.innerText = cat;
             sidebar.appendChild(link);
 
-            // Add main section
             const section = document.createElement('div');
             section.className = 'category-section';
             section.id = catId;
@@ -460,7 +566,6 @@
             header.innerText = cat;
             section.appendChild(header);
 
-            // Add questions to section
             categories[cat].forEach(q => {
                 const card = document.createElement('div');
                 card.className = 'q-card';
@@ -497,92 +602,134 @@
             
             const ansText = ansBox.value.toLowerCase().trim();
             
-            // If the user cleared the text box, handle deletion (rollback)
             if (ansText === '') {
                 if (ansBox.dataset.answered === "true") {
                     ansBox.dataset.answered = "false";
                     answeredCount--;
                     document.getElementById('answered-count').innerText = `${answeredCount} / 56`;
                     delete questionWinners[idx]; 
+                    delete clientAnswersStore[idx];
                     resBanner.classList.remove('active'); 
                     updateScoreboard(); 
                 }
                 return; 
             }
 
-            // Mark as answered
             if (ansBox.dataset.answered !== "true") {
                 ansBox.dataset.answered = "true";
                 answeredCount++;
                 document.getElementById('answered-count').innerText = `${answeredCount} / 56`;
             }
 
-            let winningUnit = q.winner; // Start with the benchmark winner
+            let winningUnit = q.winner; 
 
-            // Advanced Keyword Correlation to override default
             if (ansText.includes('7 mile') || ansText.includes('yagi') || ansText.includes('mountain') || ansText.includes('zero cell') || ansText.includes('20 trailers') || ansText.includes('agm') || ansText.includes('network')) {
                 winningUnit = 'PTL2-4X';
             } else if (ansText.includes('solar') || ansText.includes('lay flat') || ansText.includes('lay-flat') || ansText.includes('wind') || ansText.includes('100 mph') || ansText.includes('radar') || ansText.includes('mms') || ansText.includes('queue') || ansText.includes('24 hour') || ansText.includes('24/7') || ansText.includes('shift')) {
                 winningUnit = 'SQ3TS';
-            } else if (ansText.includes('compact') || ansText.includes('gravel') || ansText.includes('tight') || ansText.includes('shoulder') || ansText.includes('tongue') || ansText.includes('relocate')) {
-                winningUnit = 'PTS-2000';
             }
 
-            // Map the selected winner back to its actual specific engineering text for this question
-            let specKey = 'ptl2';
-            if (winningUnit === 'SQ3TS') specKey = 'sq3ts';
-            if (winningUnit === 'PTS-2000') specKey = 'pts2000';
+            let specKey = (winningUnit === 'SQ3TS') ? 'sq3ts' : 'ptl2';
+            let unitDisplayName = (winningUnit === 'SQ3TS') ? 'Horizon SQ3TS' : 'NAT PTL2.4x';
 
-            // Generate the dynamic HTML explanation pulling directly from the machine's capabilities
-            let explanationHTML = `Based on answer "${ansBox.value}": <strong>${winningUnit}</strong> is recommended.<br><br><strong style="color:#CCFF00;">Direct Capability Match:</strong> ${q[specKey]}`;
+            let explanationHTML = `Based on answer "${ansBox.value}": <strong>${unitDisplayName}</strong> is recommended.<br><br><strong style="color:#CCFF00;">Direct Capability Match:</strong> ${q[specKey]}`;
 
-            // Save the winner for tallying
-            questionWinners[idx] = winningUnit;
+            questionWinners[idx] = unitDisplayName;
+            clientAnswersStore[idx] = { question: q.question, category: q.category, answer: ansBox.value, winner: unitDisplayName, rationale: q[specKey] };
 
-            // Show UI banner
-            tagEl.innerText = `WINNER: ${winningUnit}`;
+            tagEl.innerText = `WINNER: ${unitDisplayName}`;
             reasonEl.innerHTML = explanationHTML;
             resBanner.classList.add('active');
             
-            // Highlight animation
             ansBox.style.borderColor = '#CCFF00';
             setTimeout(() => ansBox.style.borderColor = '#233529', 1000);
 
-            // Update running tally
             updateScoreboard();
         }
 
         function updateScoreboard() {
-            let ptl = 0, sq3 = 0, pts = 0;
+            let ptl = 0, sq3 = 0;
             let total = answeredCount;
 
-            // Count the saved winners
             for (let key in questionWinners) {
                 let w = questionWinners[key];
                 if (w.includes('PTL')) ptl++;
                 else if (w.includes('SQ3')) sq3++;
-                else if (w.includes('PTS')) pts++;
             }
 
-            // Calculate percentages
             let ptlPct = total > 0 ? Math.round((ptl / total) * 100) : 0;
             let sq3Pct = total > 0 ? Math.round((sq3 / total) * 100) : 0;
-            let ptsPct = total > 0 ? Math.round((pts / total) * 100) : 0;
 
-            // Update UI percentages
             document.getElementById('sb-ptl-pct').innerText = ptlPct + '%';
             document.getElementById('sb-sq3-pct').innerText = sq3Pct + '%';
-            document.getElementById('sb-pts-pct').innerText = ptsPct + '%';
 
-            // Update UI tallies
             document.getElementById('sb-ptl-tally').innerText = ptl + ' of ' + total + ' matches';
             document.getElementById('sb-sq3-tally').innerText = sq3 + ' of ' + total + ' matches';
-            document.getElementById('sb-pts-tally').innerText = pts + ' of ' + total + ' matches';
 
-            // Update UI progress bars
             document.getElementById('sb-ptl-bar').style.width = ptlPct + '%';
             document.getElementById('sb-sq3-bar').style.width = sq3Pct + '%';
-            document.getElementById('sb-pts-bar').style.width = ptsPct + '%';
+        }
+
+        function generateSOW() {
+            const modal = document.getElementById('sow-modal');
+            const bodyContent = document.getElementById('sow-body-content');
+
+            const answeredIndices = Object.keys(clientAnswersStore);
+            if (answeredIndices.length === 0) {
+                bodyContent.innerHTML = `<div style="color: #94A3B8; text-align: center; padding: 2rem;">Please answer at least one discovery question in the audit form before generating the Statement of Work.</div>`;
+                modal.classList.add('active');
+                return;
+            }
+
+            let ptlWins = 0, sq3Wins = 0;
+            Object.values(questionWinners).forEach(w => {
+                if (w.includes('PTL')) ptlWins++;
+                else if (w.includes('SQ3')) sq3Wins++;
+            });
+
+            let recommendedSystem = (ptlWins >= sq3Wins) ? 'North America Traffic PTL2.4x (Flagship)' : 'Horizon Signal SQ3TS';
+
+            let html = `
+                <div class="sow-doc-section">
+                    <div class="sow-doc-title">1. Executive Summary & Recommended System</div>
+                    <p>Based on the discovery audit of <strong>${answeredCount}</strong> analyzed parameters, the recommended portable traffic signal system for this project is <strong>${recommendedSystem}</strong>.</p>
+                    <p style="margin-top: 0.5rem; color: #CBD5E1;">Compatibility Breakdown: NAT PTL2.4x (${ptlWins} matches) | Horizon SQ3TS (${sq3Wins} matches).</p>
+                </div>
+
+                <div class="sow-doc-section">
+                    <div class="sow-doc-title">2. Operational Parameters & Client Requirements</div>
+            `;
+
+            const groupedSOW = {};
+            answeredIndices.forEach(idx => {
+                const item = clientAnswersStore[idx];
+                if (!groupedSOW[item.category]) groupedSOW[item.category] = [];
+                groupedSOW[item.category].push(item);
+            });
+
+            Object.keys(groupedSOW).forEach(cat => {
+                html += `<div style="margin-top: 1rem; font-weight: 700; color: #CCFF00; font-size: 0.9rem; text-transform: uppercase;">${cat}</div>`;
+                html += `<ul style="margin-left: 1.5rem; margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.5rem;">`;
+                groupedSOW[cat].forEach(entry => {
+                    html += `<li><strong>${entry.question}</strong><br><span style="color: #CBD5E1;">Client Input: "${entry.answer}"</span> <span style="color: #CCFF00; font-size: 0.85rem;">[Recommended: ${entry.winner}]</span></li>`;
+                });
+                html += `</ul>`;
+            });
+
+            html += `
+                </div>
+                <div class="sow-doc-section">
+                    <div class="sow-doc-title">3. Technical Justification & Compliance</div>
+                    <p>The selected hardware complies with MUTCD and NEMA TS-5 standards, featuring robust autonomous battery backup and reliable communication architecture tailored to the site conditions specified above.</p>
+                </div>
+            `;
+
+            bodyContent.innerHTML = html;
+            modal.classList.add('active');
+        }
+
+        function closeSOWModal() {
+            document.getElementById('sow-modal').classList.remove('active');
         }
     </script>
 </body>
