@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Scope Audit & Automated SOW Generator</title>
+    <title>Client Discovery Audit & Contractual SOW Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -85,7 +85,7 @@
             align-items: flex-start;
         }
 
-        /* Sidebar Category Navigation & Scoreboard */
+        /* Sidebar Category Navigation */
         .sidebar {
             width: 300px;
             background: #141E18;
@@ -99,53 +99,6 @@
             gap: 0.5rem;
             max-height: calc(100vh - 8rem);
             overflow-y: auto;
-        }
-        .scoreboard {
-            background: #0A0F0D;
-            border: 1px solid #233529;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .sb-title {
-            font-size: 0.75rem;
-            font-weight: 800;
-            color: #CCFF00;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.25rem;
-        }
-        .sb-row {
-            display: flex;
-            flex-direction: column;
-            gap: 0.35rem;
-        }
-        .sb-row-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #F8FAFC;
-        }
-        .sb-tally {
-            font-size: 0.75rem;
-            color: #94A3B8;
-        }
-        .progress-bg {
-            width: 100%;
-            background: #1A281F;
-            border-radius: 4px;
-            height: 6px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: #CCFF00;
-            width: 0%;
-            transition: width 0.3s ease;
         }
         .sidebar-title {
             font-size: 0.85rem;
@@ -311,7 +264,7 @@
             border: 2px solid #CCFF00;
             border-radius: 16px;
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
             max-height: 90vh;
             display: flex;
             flex-direction: column;
@@ -327,11 +280,11 @@
             align-items: center;
         }
         .sow-modal-body {
-            padding: 2rem;
+            padding: 2.5rem;
             overflow-y: auto;
             font-family: inherit;
             color: #F1F5F9;
-            line-height: 1.6;
+            line-height: 1.7;
             font-size: 0.95rem;
         }
         .sow-modal-footer {
@@ -350,19 +303,63 @@
             cursor: pointer;
         }
         .close-btn:hover { color: #F8FAFC; }
-        .sow-doc-section {
-            margin-bottom: 1.5rem;
-            background: #0A0F0D;
-            padding: 1.25rem;
-            border-radius: 8px;
-            border: 1px solid #233529;
-        }
-        .sow-doc-title {
-            font-size: 1rem;
+        
+        /* Contractual SOW Formatting */
+        .contract-title {
+            text-align: center;
+            font-size: 1.35rem;
             font-weight: 800;
             color: #CCFF00;
             margin-bottom: 0.5rem;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .contract-subtitle {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #94A3B8;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #233529;
+            padding-bottom: 1rem;
+        }
+        .contract-section {
+            margin-bottom: 2rem;
+        }
+        .contract-heading {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #CCFF00;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-bottom: 1px solid #233529;
+            padding-bottom: 0.35rem;
+        }
+        .contract-p {
+            color: #CBD5E1;
+            margin-bottom: 0.75rem;
+            text-align: justify;
+        }
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        .spec-table th, .spec-table td {
+            border: 1px solid #233529;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .spec-table th {
+            background: #0A0F0D;
+            color: #CCFF00;
+            font-weight: 700;
+        }
+        .spec-table td {
+            background: #141E18;
+            color: #E2E8F0;
         }
 
         /* Mobile & Tablet Responsive Media Queries */
@@ -410,11 +407,11 @@
 
     <header>
         <div class="brand">
-            <span class="brand-badge">LIVE AUDIT</span>
-            <span class="brand-title">Client Discovery & Automated SOW Generator</span>
+            <span class="brand-badge">AUDIT & SOW</span>
+            <span class="brand-title">Client Discovery & Contractual SOW Generator</span>
         </div>
         <div class="nav-actions">
-            <button class="sow-btn" onclick="generateSOW()">📄 Generate Scope of Work (SOW)</button>
+            <button class="sow-btn" onclick="generateContractSOW()">📄 Generate Contractual SOW</button>
             <div class="score-summary-bar">
                 <div style="font-size: 0.85rem; color: #94A3B8;">Answered:</div>
                 <div style="font-size: 0.95rem; font-weight: 800; color: #CCFF00;" id="answered-count">0 / 56</div>
@@ -423,9 +420,9 @@
     </header>
 
     <main>
-        <!-- Sidebar Category Links & Scoreboard (2 Units Only) -->
+        <!-- Sidebar Category Navigation (Scores & Weights Completely Removed) -->
         <div class="sidebar" id="sidebar-nav">
-            <!-- Injected via JS -->
+            <div class="sidebar-title">Categories</div>
         </div>
 
         <!-- Main Scrolling Audit Form -->
@@ -434,15 +431,15 @@
         </div>
     </main>
 
-    <!-- SOW Modal Popup -->
+    <!-- Contractual SOW Modal Popup -->
     <div class="modal-overlay" id="sow-modal">
         <div class="sow-modal-content">
             <div class="sow-modal-header">
-                <div style="font-size: 1.15rem; font-weight: 800; color: #CCFF00;">Generated Statement of Work (SOW)</div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: #CCFF00;">Contractual Statement of Work (SOW)</div>
                 <button class="close-btn" onclick="closeSOWModal()">&times;</button>
             </div>
             <div class="sow-modal-body" id="sow-body-content">
-                <!-- SOW text generated dynamically -->
+                <!-- Contract generated dynamically -->
             </div>
             <div class="sow-modal-footer">
                 <button class="eval-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
@@ -512,7 +509,6 @@
         ];
 
         let answeredCount = 0;
-        let questionWinners = {};
         let clientAnswersStore = {};
 
         // Group data by category
@@ -526,28 +522,7 @@
         const sidebar = document.getElementById('sidebar-nav');
         const mainForm = document.getElementById('audit-form-container');
 
-        // Build the Sidebar Scoreboard HTML (2 Units Only)
-        const scoreboardHTML = `
-            <div class="scoreboard">
-                <div class="sb-title">Live Compatibility (2 Units)</div>
-                
-                <div class="sb-row">
-                    <div class="sb-row-header"><span>NAT PTL2.4x</span> <span id="sb-ptl-pct" style="color: #CCFF00;">0%</span></div>
-                    <div class="progress-bg"><div class="progress-fill" id="sb-ptl-bar"></div></div>
-                    <div class="sb-tally" id="sb-ptl-tally">0 of 0 matches</div>
-                </div>
-
-                <div class="sb-row">
-                    <div class="sb-row-header"><span>Horizon SQ3TS</span> <span id="sb-sq3-pct" style="color: #CCFF00;">0%</span></div>
-                    <div class="progress-bg"><div class="progress-fill" id="sb-sq3-bar"></div></div>
-                    <div class="sb-tally" id="sb-sq3-tally">0 of 0 matches</div>
-                </div>
-            </div>
-            <div class="sidebar-title" style="margin-top: 1rem;">Categories</div>
-        `;
-        sidebar.innerHTML = scoreboardHTML;
-
-        // Build the layout dynamically
+        // Build the layout dynamically (Scoreboard completely omitted)
         Object.keys(categories).forEach(cat => {
             const catId = cat.replace(/\s+/g, '-').replace('&', 'and').toLowerCase();
             
@@ -607,10 +582,8 @@
                     ansBox.dataset.answered = "false";
                     answeredCount--;
                     document.getElementById('answered-count').innerText = `${answeredCount} / 56`;
-                    delete questionWinners[idx]; 
                     delete clientAnswersStore[idx];
                     resBanner.classList.remove('active'); 
-                    updateScoreboard(); 
                 }
                 return; 
             }
@@ -634,70 +607,40 @@
 
             let explanationHTML = `Based on answer "${ansBox.value}": <strong>${unitDisplayName}</strong> is recommended.<br><br><strong style="color:#CCFF00;">Direct Capability Match:</strong> ${q[specKey]}`;
 
-            questionWinners[idx] = unitDisplayName;
             clientAnswersStore[idx] = { question: q.question, category: q.category, answer: ansBox.value, winner: unitDisplayName, rationale: q[specKey] };
 
-            tagEl.innerText = `WINNER: ${unitDisplayName}`;
+            tagEl.innerText = `RECOMMENDED: ${unitDisplayName}`;
             reasonEl.innerHTML = explanationHTML;
             resBanner.classList.add('active');
             
             ansBox.style.borderColor = '#CCFF00';
             setTimeout(() => ansBox.style.borderColor = '#233529', 1000);
-
-            updateScoreboard();
         }
 
-        function updateScoreboard() {
-            let ptl = 0, sq3 = 0;
-            let total = answeredCount;
-
-            for (let key in questionWinners) {
-                let w = questionWinners[key];
-                if (w.includes('PTL')) ptl++;
-                else if (w.includes('SQ3')) sq3++;
-            }
-
-            let ptlPct = total > 0 ? Math.round((ptl / total) * 100) : 0;
-            let sq3Pct = total > 0 ? Math.round((sq3 / total) * 100) : 0;
-
-            document.getElementById('sb-ptl-pct').innerText = ptlPct + '%';
-            document.getElementById('sb-sq3-pct').innerText = sq3Pct + '%';
-
-            document.getElementById('sb-ptl-tally').innerText = ptl + ' of ' + total + ' matches';
-            document.getElementById('sb-sq3-tally').innerText = sq3 + ' of ' + total + ' matches';
-
-            document.getElementById('sb-ptl-bar').style.width = ptlPct + '%';
-            document.getElementById('sb-sq3-bar').style.width = sq3Pct + '%';
-        }
-
-        function generateSOW() {
+        // Contractual Statement of Work Generator
+        function generateContractSOW() {
             const modal = document.getElementById('sow-modal');
             const bodyContent = document.getElementById('sow-body-content');
 
             const answeredIndices = Object.keys(clientAnswersStore);
             if (answeredIndices.length === 0) {
-                bodyContent.innerHTML = `<div style="color: #94A3B8; text-align: center; padding: 2rem;">Please answer at least one discovery question in the audit form before generating the Statement of Work.</div>`;
+                bodyContent.innerHTML = `<div style="color: #94A3B8; text-align: center; padding: 2rem;">Please complete at least one discovery audit question before generating the Contractual Statement of Work.</div>`;
                 modal.classList.add('active');
                 return;
             }
 
-            let ptlWins = 0, sq3Wins = 0;
-            Object.values(questionWinners).forEach(w => {
-                if (w.includes('PTL')) ptlWins++;
-                else if (w.includes('SQ3')) sq3Wins++;
-            });
-
-            let recommendedSystem = (ptlWins >= sq3Wins) ? 'North America Traffic PTL2.4x (Flagship)' : 'Horizon Signal SQ3TS';
-
             let html = `
-                <div class="sow-doc-section">
-                    <div class="sow-doc-title">1. Executive Summary & Recommended System</div>
-                    <p>Based on the discovery audit of <strong>${answeredCount}</strong> analyzed parameters, the recommended portable traffic signal system for this project is <strong>${recommendedSystem}</strong>.</p>
-                    <p style="margin-top: 0.5rem; color: #CBD5E1;">Compatibility Breakdown: NAT PTL2.4x (${ptlWins} matches) | Horizon SQ3TS (${sq3Wins} matches).</p>
+                <div class="contract-title">Statement of Work (SOW)</div>
+                <div class="contract-subtitle">Temporary Traffic Control & Automated Signal Deployment Services</div>
+
+                <div class="contract-section">
+                    <div class="contract-heading">1. Project Overview & Authorization</div>
+                    <p class="contract-p">This Statement of Work ("SOW") defines the operational parameters, engineering specifications, and contractual deliverables agreed upon for the temporary traffic control deployment. All deployed equipment shall conform strictly to MUTCD and NEMA TS-5 compliance standards.</p>
                 </div>
 
-                <div class="sow-doc-section">
-                    <div class="sow-doc-title">2. Operational Parameters & Client Requirements</div>
+                <div class="contract-section">
+                    <div class="contract-heading">2. Project Audit Parameters & Operational Requirements</div>
+                    <p class="contract-p">The following site-specific operational parameters have been audited, verified, and established as the governing basis of design for project execution:</p>
             `;
 
             const groupedSOW = {};
@@ -708,19 +651,29 @@
             });
 
             Object.keys(groupedSOW).forEach(cat => {
-                html += `<div style="margin-top: 1rem; font-weight: 700; color: #CCFF00; font-size: 0.9rem; text-transform: uppercase;">${cat}</div>`;
-                html += `<ul style="margin-left: 1.5rem; margin-top: 0.35rem; display: flex; flex-direction: column; gap: 0.5rem;">`;
+                html += `<div style="margin-top: 1.25rem; font-weight: 700; color: #CCFF00; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">${cat}</div>`;
+                html += `<table class="spec-table">`;
+                html += `<tr><th style="width: 45%;">Audit Parameter / Requirement</th><th style="width: 55%;">Client Specification & Technical Match</th></tr>`;
                 groupedSOW[cat].forEach(entry => {
-                    html += `<li><strong>${entry.question}</strong><br><span style="color: #CBD5E1;">Client Input: "${entry.answer}"</span> <span style="color: #CCFF00; font-size: 0.85rem;">[Recommended: ${entry.winner}]</span></li>`;
+                    html += `<tr>`;
+                    html += `<td><strong>${entry.question}</strong></td>`;
+                    html += `<td>Client Input: <em>"${entry.answer}"</em><br><br><strong style="color: #CCFF00;">System Alignment:</strong> ${entry.winner} — ${entry.rationale}</td>`;
+                    html += `</tr>`;
                 });
-                html += `</ul>`;
+                html += `</table>`;
             });
 
             html += `
                 </div>
-                <div class="sow-doc-section">
-                    <div class="sow-doc-title">3. Technical Justification & Compliance</div>
-                    <p>The selected hardware complies with MUTCD and NEMA TS-5 standards, featuring robust autonomous battery backup and reliable communication architecture tailored to the site conditions specified above.</p>
+                <div class="contract-section">
+                    <div class="contract-heading">3. Scope of Services & Deliverables</div>
+                    <p class="contract-p"><strong>Equipment Mobilization & Setup:</strong> Contractor shall deliver, position, and commission the specified portable traffic signal units in accordance with approved Maintenance and Protection of Traffic (MPT) plans.</p>
+                    <p class="contract-p"><strong>Maintenance & Operational Support:</strong> Contractor shall maintain continuous operational readiness, providing fault monitoring, conflict management system (MMS) oversight, and designated response support throughout the project lifecycle.</p>
+                </div>
+
+                <div class="contract-section">
+                    <div class="contract-heading">4. Terms and Acceptance</div>
+                    <p class="contract-p">Execution of this document confirms that the audited parameters and hardware alignments accurately reflect the operational scope required by the client. Any modifications to site geometry or phasing duration require a formal written amendment.</p>
                 </div>
             `;
 
