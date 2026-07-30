@@ -65,9 +65,9 @@
             align-items: flex-start;
         }
 
-        /* Sidebar Category Navigation */
+        /* Sidebar Category Navigation & Scoreboard */
         .sidebar {
-            width: 280px;
+            width: 300px;
             background: #141E18;
             border-radius: 12px;
             border: 1px solid #233529;
@@ -77,6 +77,53 @@
             top: 6rem;
             padding: 1rem;
             gap: 0.5rem;
+        }
+        .scoreboard {
+            background: #0A0F0D;
+            border: 1px solid #233529;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .sb-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #CCFF00;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+        .sb-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .sb-row-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #F8FAFC;
+        }
+        .sb-tally {
+            font-size: 0.75rem;
+            color: #94A3B8;
+        }
+        .progress-bg {
+            width: 100%;
+            background: #1A281F;
+            border-radius: 4px;
+            height: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #CCFF00;
+            width: 0%;
+            transition: width 0.3s ease;
         }
         .sidebar-title {
             font-size: 0.85rem;
@@ -236,10 +283,9 @@
     </header>
 
     <main>
-        <!-- Sidebar Category Links -->
+        <!-- Sidebar Category Links & Scoreboard -->
         <div class="sidebar" id="sidebar-nav">
-            <div class="sidebar-title">Categories</div>
-            <!-- Links injected via JS -->
+            <!-- Injected via JS -->
         </div>
 
         <!-- Main Scrolling Audit Form -->
@@ -253,6 +299,7 @@
         const rawData = [{"qnum": "Q1", "category": "Logistics & Phasing", "question": "What is the maximum length of the road closures?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q2", "category": "Logistics & Phasing", "question": "Type of road, construction only, public or private?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q3", "category": "Logistics & Phasing", "question": "Are there any intersecting roads or driveways to be considered?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q4", "category": "Logistics & Phasing", "question": "Length of shifts, or is it 24 hour requirement?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q5", "category": "Logistics & Phasing", "question": "Job estimated duration?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q6", "category": "Logistics & Phasing", "question": "Geological condition of job sites, forests, open farm land, existing roads?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q7", "category": "Logistics & Phasing", "question": "How many project locations require temporary traffic signals?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q8", "category": "Logistics & Phasing", "question": "Where are the project sites located (GPS coordinates or addresses)?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q9", "category": "Logistics & Phasing", "question": "Is this a single project or multiple phases?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q10", "category": "Logistics & Phasing", "question": "What is the anticipated project duration at each location?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q11", "category": "Logistics & Phasing", "question": "What are the expected start and completion dates?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q12", "category": "Logistics & Phasing", "question": "Will the signals remain in one location or be moved throughout the project?", "winner": "PTS-2000", "reason": "JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue."}, {"qnum": "Q13", "category": "Roadway & Traffic Ops", "question": "What is the roadway classification (township, county, state, private)?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q14", "category": "Roadway & Traffic Ops", "question": "What is the posted speed limit?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q15", "category": "Roadway & Traffic Ops", "question": "What is the average daily traffic (ADT), if known?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q16", "category": "Roadway & Traffic Ops", "question": "Is the roadway paved or gravel?", "winner": "PTS-2000", "reason": "JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue."}, {"qnum": "Q17", "category": "Roadway & Traffic Ops", "question": "What is the roadway width?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q18", "category": "Roadway & Traffic Ops", "question": "Why is alternating one-way traffic required?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q19", "category": "Roadway & Traffic Ops", "question": "What is the length of the one-lane closure?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q20", "category": "Roadway & Traffic Ops", "question": "Will the work zone length change during construction?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q21", "category": "Roadway & Traffic Ops", "question": "Will construction equipment regularly enter and exit the work zone?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q22", "category": "Roadway & Traffic Ops", "question": "Are oversized trucks or drilling equipment expected?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q23", "category": "Roadway & Traffic Ops", "question": "Will traffic need to stop for blasting or specialized operations?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q24", "category": "Roadway & Traffic Ops", "question": "Will traffic be maintained 24 hours per day?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q25", "category": "Roadway & Traffic Ops", "question": "Will the signals operate continuously or only during work hours?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q26", "category": "Roadway & Traffic Ops", "question": "What are the anticipated peak traffic periods?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q27", "category": "Roadway & Traffic Ops", "question": "Is emergency vehicle access required?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q28", "category": "Roadway & Traffic Ops", "question": "Is school bus traffic expected?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q29", "category": "Roadway & Traffic Ops", "question": "Are there local residents requiring frequent access?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q30", "category": "Comms, Power & Env", "question": "Has anyone verified cellular service at the project site?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q31", "category": "Comms, Power & Env", "question": "Which carriers provide coverage (AT&T, Verizon, T-Mobile)?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q32", "category": "Comms, Power & Env", "question": "Is any reliable cellular signal available?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q33", "category": "Comms, Power & Env", "question": "Is commercial power available nearby?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q34", "category": "Comms, Power & Env", "question": "Are generators permitted?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q35", "category": "Permits & Specs", "question": "Who is the permitting authority?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q36", "category": "Permits & Specs", "question": "Has a Maintenance and Protection of Traffic (MPT) or Traffic Control Plan been approved?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q37", "category": "Permits & Specs", "question": "Is a professional engineer required to approve the signal layout?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q38", "category": "Permits & Specs", "question": "Will PennDOT, the county, or a township inspect the installation?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q39", "category": "Permits & Specs", "question": "Are there any special permit conditions?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q40", "category": "Permits & Specs", "question": "Can our technicians access the site with pickup trucks?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q41", "category": "Permits & Specs", "question": "Are there weight restrictions?", "winner": "PTS-2000", "reason": "JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue."}, {"qnum": "Q42", "category": "Permits & Specs", "question": "Will escorts be required?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q43", "category": "Permits & Specs", "question": "Is the site accessible during all weather conditions?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q44", "category": "Permits & Specs", "question": "Who is the onsite contact for deliveries and service calls?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q45", "category": "Permits & Specs", "question": "Will you require 24/7 emergency support?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q46", "category": "Permits & Specs", "question": "How quickly must service personnel respond if a signal malfunctions?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q47", "category": "Permits & Specs", "question": "Who will monitor the equipment during off-hours?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q48", "category": "Permits & Specs", "question": "Will daily inspections be required?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q49", "category": "Industry & Heavy Ops", "question": "Which operator or energy company owns the lease?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q50", "category": "Permits & Specs", "question": "Will heavy haul water trucks use the route?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q51", "category": "Industry & Heavy Ops", "question": "What is the maximum truck volume expected per hour?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q52", "category": "Industry & Heavy Ops", "question": "Are there periods when convoy traffic is expected?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q53", "category": "Industry & Heavy Ops", "question": "Will drilling or fracking operations require around-the-clock access?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q54", "category": "Industry & Heavy Ops", "question": "Are there any hazardous-material transportation requirements?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q55", "category": "Industry & Heavy Ops", "question": "Is there a designated emergency evacuation route?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q56", "category": "Industry & Heavy Ops", "question": "Will dust, mud, or snow impact signal visibility or operation?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}];
 
         let answeredCount = 0;
+        let questionWinners = {}; // Store the winner for each answered question
 
         // Group data by category
         const categories = {};
@@ -264,6 +311,33 @@
 
         const sidebar = document.getElementById('sidebar-nav');
         const mainForm = document.getElementById('audit-form-container');
+
+        // Build the Sidebar Scoreboard HTML
+        const scoreboardHTML = `
+            <div class="scoreboard">
+                <div class="sb-title">Live Compatibility</div>
+                
+                <div class="sb-row">
+                    <div class="sb-row-header"><span>PTL2.4x</span> <span id="sb-ptl-pct" style="color: #CCFF00;">0%</span></div>
+                    <div class="progress-bg"><div class="progress-fill" id="sb-ptl-bar"></div></div>
+                    <div class="sb-tally" id="sb-ptl-tally">0 of 0 matches</div>
+                </div>
+
+                <div class="sb-row">
+                    <div class="sb-row-header"><span>SQ3TS</span> <span id="sb-sq3-pct" style="color: #CCFF00;">0%</span></div>
+                    <div class="progress-bg"><div class="progress-fill" id="sb-sq3-bar"></div></div>
+                    <div class="sb-tally" id="sb-sq3-tally">0 of 0 matches</div>
+                </div>
+
+                <div class="sb-row">
+                    <div class="sb-row-header"><span>PTS-2000</span> <span id="sb-pts-pct" style="color: #CCFF00;">0%</span></div>
+                    <div class="progress-bg"><div class="progress-fill" id="sb-pts-bar"></div></div>
+                    <div class="sb-tally" id="sb-pts-tally">0 of 0 matches</div>
+                </div>
+            </div>
+            <div class="sidebar-title" style="margin-top: 1rem;">Categories</div>
+        `;
+        sidebar.innerHTML = scoreboardHTML;
 
         // Build the layout dynamically
         Object.keys(categories).forEach(cat => {
@@ -296,7 +370,7 @@
                         <span class="q-text">${q.question}</span>
                     </div>
                     <div class="input-row">
-                        <input type="text" id="ans-${q.globalIndex}" class="text-bubble" placeholder="Type client's answer here..." onkeypress="handleKeyPress(event, ${q.globalIndex})">
+                        <input type="text" id="ans-${q.globalIndex}" class="text-bubble" placeholder="Type client's answer here (leave blank & hit enter to delete)..." onkeypress="handleKeyPress(event, ${q.globalIndex})">
                         <button class="eval-btn" onclick="evaluateAnswer(${q.globalIndex})">Evaluate Best Unit</button>
                     </div>
                     <div class="result-banner" id="res-${q.globalIndex}">
@@ -323,8 +397,21 @@
             
             const ansText = ansBox.value.toLowerCase().trim();
             
-            // If it's the first time evaluating this question, increment counter
-            if (!ansBox.dataset.answered && ansText !== '') {
+            // If the user cleared the text box, handle deletion (rollback)
+            if (ansText === '') {
+                if (ansBox.dataset.answered === "true") {
+                    ansBox.dataset.answered = "false";
+                    answeredCount--;
+                    document.getElementById('answered-count').innerText = `${answeredCount} / 56`;
+                    delete questionWinners[idx]; // Remove this answer's winner from tracking
+                    resBanner.classList.remove('active'); // Hide the banner
+                    updateScoreboard(); // Recalculate tally
+                }
+                return; // Stop here
+            }
+
+            // If it's a new answer being submitted
+            if (ansBox.dataset.answered !== "true") {
                 ansBox.dataset.answered = "true";
                 answeredCount++;
                 document.getElementById('answered-count').innerText = `${answeredCount} / 56`;
@@ -333,22 +420,24 @@
             let winningUnit = q.winner;
             let explanation = `Standard Capability Match: ${q.reason}`;
 
-            if (ansText !== '') {
-                // Feature keyword correlation
-                if (ansText.includes('7 mile') || ansText.includes('yagi') || ansText.includes('mountain') || ansText.includes('zero cell') || ansText.includes('20') || ansText.includes('30 days') || ansText.includes('agm')) {
-                    winningUnit = 'PTL2.4x';
-                    explanation = `Correlated Feature Match: PTL2.4x wins due to its 7-mile Yagi RF capability, 31-day AGM battery backup, and 20-trailer network capacity.`;
-                } else if (ansText.includes('solar') || ansText.includes('lay flat') || ansText.includes('lay-flat') || ansText.includes('wind') || ansText.includes('100 mph') || ansText.includes('radar') || ansText.includes('mms')) {
-                    winningUnit = 'Horizon SQ3TS';
-                    explanation = `Correlated Feature Match: Horizon SQ3TS wins due to its high-wattage lay-flat solar array and 100-mph wind load design.`;
-                } else if (ansText.includes('compact') || ansText.includes('gravel') || ansText.includes('tight') || ansText.includes('shoulder') || ansText.includes('tongue')) {
-                    winningUnit = 'JTi PTS-2000';
-                    explanation = `Correlated Feature Match: JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue.`;
-                } else {
-                    explanation = `Based on answer "${ansText}": Recommended unit defaults to ${q.winner}. (${q.reason})`;
-                }
+            // Feature keyword correlation
+            if (ansText.includes('7 mile') || ansText.includes('yagi') || ansText.includes('mountain') || ansText.includes('zero cell') || ansText.includes('20') || ansText.includes('30 days') || ansText.includes('agm')) {
+                winningUnit = 'PTL2-4X';
+                explanation = `Correlated Feature Match: PTL2.4x wins due to its 7-mile Yagi RF capability, 31-day AGM battery backup, and 20-trailer network capacity.`;
+            } else if (ansText.includes('solar') || ansText.includes('lay flat') || ansText.includes('lay-flat') || ansText.includes('wind') || ansText.includes('100 mph') || ansText.includes('radar') || ansText.includes('mms')) {
+                winningUnit = 'SQ3TS';
+                explanation = `Correlated Feature Match: Horizon SQ3TS wins due to its high-wattage lay-flat solar array and 100-mph wind load design.`;
+            } else if (ansText.includes('compact') || ansText.includes('gravel') || ansText.includes('tight') || ansText.includes('shoulder') || ansText.includes('tongue')) {
+                winningUnit = 'PTS-2000';
+                explanation = `Correlated Feature Match: JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue.`;
+            } else {
+                explanation = `Based on answer "${ansText}": Recommended unit defaults to ${q.winner}. (${q.reason})`;
             }
 
+            // Save the winner for tallying
+            questionWinners[idx] = winningUnit;
+
+            // Show UI banner
             tagEl.innerText = `WINNER: ${winningUnit}`;
             reasonEl.innerText = explanation;
             resBanner.classList.add('active');
@@ -356,6 +445,42 @@
             // Highlight animation
             ansBox.style.borderColor = '#CCFF00';
             setTimeout(() => ansBox.style.borderColor = '#233529', 1000);
+
+            // Update running tally
+            updateScoreboard();
+        }
+
+        function updateScoreboard() {
+            let ptl = 0, sq3 = 0, pts = 0;
+            let total = answeredCount;
+
+            // Count the saved winners
+            for (let key in questionWinners) {
+                let w = questionWinners[key];
+                if (w.includes('PTL')) ptl++;
+                else if (w.includes('SQ3')) sq3++;
+                else if (w.includes('PTS')) pts++;
+            }
+
+            // Calculate percentages
+            let ptlPct = total > 0 ? Math.round((ptl / total) * 100) : 0;
+            let sq3Pct = total > 0 ? Math.round((sq3 / total) * 100) : 0;
+            let ptsPct = total > 0 ? Math.round((pts / total) * 100) : 0;
+
+            // Update UI percentages
+            document.getElementById('sb-ptl-pct').innerText = ptlPct + '%';
+            document.getElementById('sb-sq3-pct').innerText = sq3Pct + '%';
+            document.getElementById('sb-pts-pct').innerText = ptsPct + '%';
+
+            // Update UI tallies
+            document.getElementById('sb-ptl-tally').innerText = ptl + ' of ' + total + ' matches';
+            document.getElementById('sb-sq3-tally').innerText = sq3 + ' of ' + total + ' matches';
+            document.getElementById('sb-pts-tally').innerText = pts + ' of ' + total + ' matches';
+
+            // Update UI progress bars
+            document.getElementById('sb-ptl-bar').style.width = ptlPct + '%';
+            document.getElementById('sb-sq3-bar').style.width = sq3Pct + '%';
+            document.getElementById('sb-pts-bar').style.width = ptsPct + '%';
         }
     </script>
 </body>
