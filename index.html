@@ -77,6 +77,8 @@
             top: 6rem;
             padding: 1rem;
             gap: 0.5rem;
+            max-height: calc(100vh - 8rem);
+            overflow-y: auto;
         }
         .scoreboard {
             background: #0A0F0D;
@@ -154,6 +156,7 @@
             display: flex;
             flex-direction: column;
             gap: 3rem;
+            min-width: 0;
         }
         .category-section {
             display: flex;
@@ -268,6 +271,46 @@
             color: #CBD5E1;
             line-height: 1.5;
         }
+
+        /* Mobile & Tablet Responsive Media Queries */
+        @media (max-width: 1024px) {
+            main {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1.5rem;
+            }
+            .sidebar {
+                width: 100%;
+                position: static;
+                max-height: none;
+            }
+            header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: stretch;
+            }
+            .score-summary-bar {
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .input-row {
+                flex-direction: column;
+            }
+            .eval-btn {
+                width: 100%;
+            }
+            .q-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .result-banner {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -296,7 +339,6 @@
     </main>
 
     <script>
-        // Full dataset with actual unique machine specifications for each question!
         const rawData = [
             {"qnum": "Q1", "category": "Logistics & Phasing", "question": "What is the maximum length of the road closures?", "ptl2": "Standard RF: 1 mile. Optional Yagi directional antenna extends line-of-sight communication range to 5\u20137 miles.", "sq3ts": "Standard 900 MHz RF: ~1 mi. Requires directional Yagi antennas or multi-hop repeater node trailers.", "pts2000": "Standard RF: ~1 mi. Requires FHSS radio upgrades or intermediate repeater trailer setups.", "winner": "PTL2-4X"}, 
             {"qnum": "Q2", "category": "Logistics & Phasing", "question": "Type of road, construction only, public or private?", "ptl2": "MUTCD & NEMA TS-5 compliant; dual high-visibility heads standard for public highways.", "sq3ts": "MUTCD & NEMA TS-5 compliant; 100-mph wind load rating for high-speed public corridors.", "pts2000": "MUTCD & NEMA TS-5 compliant; Type 4 heavy trailer footprint designed for public/DOT roads.", "winner": "SQ3TS"}, 
@@ -480,7 +522,7 @@
             // Advanced Keyword Correlation to override default
             if (ansText.includes('7 mile') || ansText.includes('yagi') || ansText.includes('mountain') || ansText.includes('zero cell') || ansText.includes('20 trailers') || ansText.includes('agm') || ansText.includes('network')) {
                 winningUnit = 'PTL2-4X';
-            } else if (ansText.includes('solar') || ansText.includes('lay flat') || ansText.includes('lay-flat') || ansText.includes('wind') || ansText.includes('100 mph') || ansText.includes('radar') || ansText.includes('mms') || ansText.includes('queue')) {
+            } else if (ansText.includes('solar') || ansText.includes('lay flat') || ansText.includes('lay-flat') || ansText.includes('wind') || ansText.includes('100 mph') || ansText.includes('radar') || ansText.includes('mms') || ansText.includes('queue') || ansText.includes('24 hour') || ansText.includes('24/7') || ansText.includes('shift')) {
                 winningUnit = 'SQ3TS';
             } else if (ansText.includes('compact') || ansText.includes('gravel') || ansText.includes('tight') || ansText.includes('shoulder') || ansText.includes('tongue') || ansText.includes('relocate')) {
                 winningUnit = 'PTS-2000';
