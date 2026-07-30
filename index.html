@@ -437,7 +437,7 @@
         const sidebar = document.getElementById('sidebar-nav');
         const mainForm = document.getElementById('audit-form-container');
 
-        // Build the layout dynamically without evaluation buttons
+        // Build the layout dynamically
         Object.keys(categories).forEach(cat => {
             const catId = cat.replace(/\s+/g, '-').replace('&', 'and').toLowerCase();
             
@@ -501,24 +501,51 @@
             }
         }
 
-        // Helper to convert questions into flowing context (e.g., "The maximum length of road closures will be 7 miles.")
-        function formatIntoSentence(question, answer) {
-            let qClean = question.trim();
-            if (qClean.endsWith('?')) {
-                qClean = qClean.slice(0, -1);
-            }
+        // Custom clean logical sentence generator for Section 2
+        function formatIntoSentence(qnum, question, answer) {
+            let ans = answer.trim();
+            if (!ans.endsWith('.')) ans += '.';
             
-            let lowerQ = qClean.toLowerCase();
-            if (lowerQ.startsWith('what is') || lowerQ.startsWith('what are') || lowerQ.startsWith('which')) {
-                return `The ${qClean.replace(/^(what is|what are|which)\s+/i, '')} will be ${answer}.`;
-            } else if (lowerQ.startsWith('are there') || lowerQ.startsWith('is there') || lowerQ.startsWith('is this') || lowerQ.startsWith('will')) {
-                return `Regarding whether ${lowerQ}, ${answer}.`;
-            } else {
-                return `For ${lowerQ}, ${answer}.`;
+            switch(qnum) {
+                case 'Q1':
+                    return `The maximum length of road closures will be ${ans.toLowerCase()}`;
+                case 'Q2':
+                    return `It is a ${ans.toLowerCase()}`;
+                case 'Q3':
+                    return `Regarding intersecting roads or driveways, ${ans.toLowerCase()}`;
+                case 'Q4':
+                    return `The shift requirement is ${ans.toLowerCase()}`;
+                case 'Q5':
+                    return `The estimated job duration is ${ans.toLowerCase()}`;
+                case 'Q6':
+                    return `The geological condition of the job site is ${ans.toLowerCase()}`;
+                case 'Q7':
+                    return `There are ${ans.toLowerCase()} project locations requiring temporary traffic signals.`;
+                case 'Q8':
+                    return `Project sites are located at ${ans.toLowerCase()}`;
+                case 'Q9':
+                    return `This project will be ${ans.toLowerCase()}`;
+                case 'Q10':
+                    return `The anticipated project duration at each location is ${ans.toLowerCase()}`;
+                case 'Q11':
+                    return `The expected start and completion dates are ${ans.toLowerCase()}`;
+                case 'Q12':
+                    return `Regarding signal placement, ${ans.toLowerCase()}`;
+                default:
+                    let qClean = question.trim();
+                    if (qClean.endsWith('?')) qClean = qClean.slice(0, -1);
+                    let lowerQ = qClean.toLowerCase();
+                    if (lowerQ.startsWith('what is') || lowerQ.startsWith('what are') || lowerQ.startsWith('which')) {
+                        return `The ${lowerQ.replace(/^(what is|what are|which)\s+/i, '')} will be ${ans.toLowerCase()}`;
+                    } else if (lowerQ.startsWith('are there') || lowerQ.startsWith('is there') || lowerQ.startsWith('is this') || lowerQ.startsWith('will')) {
+                        return `Regarding whether ${lowerQ}, ${ans.toLowerCase()}`;
+                    } else {
+                        return `For ${lowerQ}, ${ans.toLowerCase()}`;
+                    }
             }
         }
 
-        // Generate formal Contractual SOW with pure flowing prose paragraphs (NO category titles, NO tables)
+        // Generate formal Contractual SOW with clean flowing prose paragraphs
         function generateContractSOW() {
             const modal = document.getElementById('sow-modal');
             const bodyContent = document.getElementById('sow-body-content');
@@ -543,11 +570,10 @@
                     <div class="contract-heading">2. Project Operational Parameters & Site Scope</div>
             `;
 
-            // Combine all answered questions into a single cohesive flowing paragraph without any category headings or tables
             let combinedParagraph = "<p class=\"contract-p\">";
             answeredIndices.forEach(idx => {
                 const item = clientAnswersStore[idx];
-                combinedParagraph += formatIntoSentence(item.question, item.answer) + " ";
+                combinedParagraph += formatIntoSentence(item.qnum, item.question, item.answer) + " ";
             });
             combinedParagraph += "</p>";
 
