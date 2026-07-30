@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>56-Question Client Scope & Signal Evaluator</title>
+    <title>Categorized Client Audit & Signal Evaluator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,6 +22,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .brand {
             display: flex;
@@ -36,7 +39,6 @@
             padding: 0.3rem 0.7rem;
             border-radius: 6px;
             letter-spacing: 0.05em;
-            box-shadow: 0 0 10px rgba(204, 255, 0, 0.3);
         }
         .brand-title {
             font-size: 1.15rem;
@@ -52,134 +54,114 @@
             border-radius: 8px;
             border: 1px solid #233529;
         }
-        .score-pill {
-            font-size: 0.85rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
         
         main {
-            flex: 1;
             display: flex;
             padding: 2rem;
             gap: 2rem;
-            max-width: 1600px;
+            max-width: 1400px;
             margin: 0 auto;
             width: 100%;
+            align-items: flex-start;
         }
 
-        /* Sidebar Navigation for Deck View */
+        /* Sidebar Category Navigation */
         .sidebar {
-            width: 340px;
+            width: 280px;
             background: #141E18;
             border-radius: 12px;
             border: 1px solid #233529;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            height: calc(100vh - 120px);
             position: sticky;
-            top: 2rem;
+            top: 6rem;
+            padding: 1rem;
+            gap: 0.5rem;
         }
-        .sidebar-header {
-            padding: 1rem 1.25rem;
-            background: #0A0F0D;
-            border-bottom: 1px solid #233529;
+        .sidebar-title {
             font-size: 0.85rem;
-            font-weight: 700;
-            color: #CCFF00;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .q-list {
-            overflow-y: auto;
-            flex: 1;
-        }
-        .q-item {
-            padding: 0.85rem 1.25rem;
-            border-bottom: 1px solid #1A281F;
-            cursor: pointer;
-            transition: background 0.15s ease;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .q-item:hover { background: #233529; }
-        .q-item.active { background: #CCFF00; color: #0A0F0D; font-weight: 700; }
-        .q-item-num { font-weight: 800; font-size: 0.9rem; margin-right: 0.75rem; }
-        .q-item-title { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
-        .badge-answered {
-            font-size: 0.65rem;
             font-weight: 800;
-            background: #233529;
             color: #CCFF00;
-            padding: 0.15rem 0.4rem;
-            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            padding-left: 0.5rem;
+        }
+        .cat-link {
+            color: #94A3B8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .cat-link:hover {
+            background: #233529;
+            color: #F8FAFC;
         }
 
-        .content-area {
+        /* Main Form Area */
+        .audit-form {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+        .category-section {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
         }
+        .category-header {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #CCFF00;
+            border-bottom: 2px solid #233529;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
 
-        /* Active Question Card */
-        .card-main {
+        /* Individual Question Card */
+        .q-card {
             background: #141E18;
             border: 1px solid #233529;
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-            position: relative;
-        }
-        .card-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-        .cat-badge {
-            background: rgba(204, 255, 0, 0.12);
-            color: #CCFF00;
-            border: 1px solid rgba(204, 255, 0, 0.3);
-            font-size: 0.78rem;
-            font-weight: 800;
-            padding: 0.35rem 0.8rem;
-            border-radius: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .q-num-large { color: #94A3B8; font-size: 0.9rem; font-weight: 600; }
-        .q-heading { font-size: 1.45rem; font-weight: 700; line-height: 1.35; color: #F8FAFC; margin-bottom: 1.25rem; }
-        
-        /* Interactive Client Answer Capture Box */
-        .client-answer-box {
-            background: #0A0F0D;
-            border: 2px solid #CCFF00;
             border-radius: 12px;
             padding: 1.5rem;
-            margin-bottom: 1.5rem;
             display: flex;
             flex-direction: column;
             gap: 1rem;
-            box-shadow: 0 0 20px rgba(204, 255, 0, 0.1);
         }
-        .answer-box-title {
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: #CCFF00;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .answer-input-row {
+        .q-header {
             display: flex;
             gap: 1rem;
+            align-items: flex-start;
         }
-        .answer-text-input {
+        .q-num {
+            background: rgba(204, 255, 0, 0.1);
+            color: #CCFF00;
+            font-weight: 800;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .q-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #F8FAFC;
+            line-height: 1.4;
+        }
+        
+        /* Input & Button Row */
+        .input-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .text-bubble {
             flex: 1;
-            background: #141E18;
+            background: #0A0F0D;
             border: 1px solid #233529;
             border-radius: 8px;
             padding: 0.85rem 1rem;
@@ -187,17 +169,17 @@
             font-size: 0.95rem;
             font-family: inherit;
         }
-        .answer-text-input:focus {
+        .text-bubble:focus {
             outline: none;
             border-color: #CCFF00;
-            box-shadow: 0 0 10px rgba(204, 255, 0, 0.2);
+            box-shadow: 0 0 10px rgba(204, 255, 0, 0.15);
         }
         .eval-btn {
-            background: #CCFF00;
-            color: #0A0F0D;
-            border: none;
+            background: #233529;
+            color: #F8FAFC;
+            border: 1px solid #334a3b;
             padding: 0.85rem 1.5rem;
-            font-weight: 800;
+            font-weight: 700;
             font-size: 0.9rem;
             border-radius: 8px;
             cursor: pointer;
@@ -205,287 +187,176 @@
             white-space: nowrap;
         }
         .eval-btn:hover {
-            background: #b3e000;
-            transform: translateY(-1px);
-        }
-
-        /* Question Match Output Banner */
-        .question-match-banner {
-            background: rgba(204, 255, 0, 0.08);
-            border: 1px solid #CCFF00;
-            border-radius: 10px;
-            padding: 1rem 1.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-        .match-badge-lg {
             background: #CCFF00;
             color: #0A0F0D;
-            font-size: 0.85rem;
+            border-color: #CCFF00;
+        }
+
+        /* Result Banner */
+        .result-banner {
+            display: none;
+            background: rgba(204, 255, 0, 0.05);
+            border: 1px solid #CCFF00;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            align-items: center;
+            gap: 1rem;
+        }
+        .result-banner.active {
+            display: flex;
+        }
+        .winner-tag {
+            background: #CCFF00;
+            color: #0A0F0D;
+            font-size: 0.75rem;
             font-weight: 800;
             padding: 0.35rem 0.75rem;
-            border-radius: 6px;
-            text-transform: uppercase;
+            border-radius: 4px;
             white-space: nowrap;
         }
-        .match-explanation {
+        .reason-text {
             font-size: 0.9rem;
-            color: #F8FAFC;
-            font-weight: 500;
-            flex: 1;
+            color: #CBD5E1;
+            line-height: 1.5;
         }
-
-        /* Machine Spec Cards Grid */
-        .specs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
-        .spec-card {
-            background: #141E18;
-            border: 1px solid #233529;
-            border-radius: 12px;
-            padding: 1.35rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            transition: all 0.2s ease;
-            opacity: 0.65;
-        }
-        .spec-card.winner {
-            opacity: 1;
-            border: 2px solid #CCFF00;
-            background: linear-gradient(180deg, #141E18 0%, #1A2E1E 100%);
-            box-shadow: 0 0 20px rgba(204, 255, 0, 0.2);
-            transform: translateY(-2px);
-        }
-        .spec-card-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid #233529; }
-        .machine-name { font-weight: 700; font-size: 0.98rem; color: #F8FAFC; }
-        .winner-tag { background: #CCFF00; color: #0A0F0D; font-size: 0.65rem; font-weight: 800; padding: 0.25rem 0.55rem; border-radius: 4px; text-transform: uppercase; display: none; }
-        .spec-card.winner .winner-tag { display: inline-block; }
-        .spec-body { font-size: 0.88rem; color: #CBD5E1; line-height: 1.55; flex: 1; }
-
-        .controls { display: flex; justify-content: space-between; align-items: center; background: #141E18; border: 1px solid #233529; border-radius: 12px; padding: 1rem 1.5rem; }
-        .btn {
-            background: #233529;
-            border: 1px solid #2D4435;
-            color: #F8FAFC;
-            padding: 0.65rem 1.25rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .btn:hover { background: #CCFF00; color: #0A0F0D; font-weight: 700; }
-        .progress-text { font-size: 0.9rem; font-weight: 600; color: #94A3B8; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="brand">
-            <span class="brand-badge">LIVE SCOPE AUDIT</span>
-            <span class="brand-title">56-Question Client Discovery & Signal Evaluator</span>
+            <span class="brand-badge">LIVE AUDIT FORM</span>
+            <span class="brand-title">Client Discovery & Categorized Signal Evaluator</span>
         </div>
-        
         <div class="score-summary-bar">
-            <div style="font-size: 0.75rem; color: #94A3B8; font-weight: 700; text-transform: uppercase;">Overall Leader:</div>
-            <div class="score-pill" style="color: #CCFF00;" id="overall-winner-badge">PTL2.4x (Flagship)</div>
-            <div style="font-size: 0.75rem; color: #64748B;">|</div>
-            <div style="font-size: 0.8rem; color: #CBD5E1;"><strong id="answered-count">0</strong> / 56 Questions Answered</div>
+            <div style="font-size: 0.85rem; color: #94A3B8;">Questions Answered:</div>
+            <div style="font-size: 0.95rem; font-weight: 800; color: #CCFF00;" id="answered-count">0 / 56</div>
         </div>
     </header>
 
     <main>
-        <!-- Sidebar Navigation -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <span>QUESTION AUDIT LIST</span>
-                <span id="question-count">56 Questions</span>
-            </div>
-            <div class="q-list" id="q-list"></div>
+        <!-- Sidebar Category Links -->
+        <div class="sidebar" id="sidebar-nav">
+            <div class="sidebar-title">Categories</div>
+            <!-- Links injected via JS -->
         </div>
 
-        <!-- Main Card & Answer Area -->
-        <div class="content-area">
-            <div class="card-main">
-                <div class="card-meta">
-                    <span class="cat-badge" id="card-cat">Logistics & Phasing</span>
-                    <span class="q-num-large" id="card-qnum">Question 1 of 56</span>
-                </div>
-                
-                <div class="q-heading" id="card-question">Loading question...</div>
-
-                <!-- Interactive Client Answer Capture Box -->
-                <div class="client-answer-box">
-                    <div class="answer-box-title">
-                        <span>💬 Step 1: Record Client Answer for This Question</span>
-                    </div>
-                    
-                    <div class="answer-input-row">
-                        <input type="text" class="answer-text-input" id="client-answer-input" placeholder="Type the client's answer to this question here..." onkeypress="handleKeyPress(event)">
-                        <button class="eval-btn" onclick="evaluateCurrentAnswer()">Evaluate Best Signal</button>
-                    </div>
-                </div>
-
-                <!-- Dynamic Question Match Output Banner -->
-                <div class="question-match-banner">
-                    <span class="match-badge-lg" id="match-unit-tag">BEST SIGNAL: PTL2-4X</span>
-                    <span class="match-explanation" id="match-explanation-text">Type the client's answer above to see which unit performs best for this specific question.</span>
-                </div>
-            </div>
-
-            <!-- Machine Comparison Grid -->
-            <div class="specs-grid">
-                <div class="spec-card" id="card-ptl2-box">
-                    <div class="spec-card-header">
-                        <span class="machine-name">NAT PTL2.4x</span>
-                        <span class="winner-tag">★ TOP MATCH</span>
-                    </div>
-                    <div class="spec-body" id="card-ptl2">Loading specs...</div>
-                </div>
-
-                <div class="spec-card" id="card-sq3ts-box">
-                    <div class="spec-card-header">
-                        <span class="machine-name">Horizon SQ3TS</span>
-                        <span class="winner-tag">★ TOP MATCH</span>
-                    </div>
-                    <div class="spec-body" id="card-sq3ts">Loading specs...</div>
-                </div>
-
-                <div class="spec-card" id="card-pts2000-box">
-                    <div class="spec-card-header">
-                        <span class="machine-name">JTi PTS-2000</span>
-                        <span class="winner-tag">★ TOP MATCH</span>
-                    </div>
-                    <div class="spec-body" id="card-pts2000">Loading specs...</div>
-                </div>
-            </div>
-
-            <!-- Navigation Controls -->
-            <div class="controls">
-                <button class="btn" onclick="prevQuestion()">← Previous Question</button>
-                <span class="progress-text" id="progress-indicator">1 / 56</span>
-                <button class="btn" onclick="nextQuestion()">Next Question →</button>
-            </div>
+        <!-- Main Scrolling Audit Form -->
+        <div class="audit-form" id="audit-form-container">
+            <!-- Questions injected via JS -->
         </div>
     </main>
 
     <script>
-        const rawData = [{"qnum": "Q1", "category": "Logistics & Phasing", "question": "What is the maximum length of the road closures?", "ptl2": "Standard RF: 1 mile. Optional Yagi directional antenna extends line-of-sight communication range to 5\u20137 miles[cite: 4, 5].", "sq3ts": "Standard 900 MHz RF: ~1 mi. Requires directional Yagi antennas or multi-hop repeater node trailers.", "pts2000": "Standard RF: ~1 mi. Requires FHSS radio upgrades or intermediate repeater trailer setups.", "impact": "Sizes RF architecture. Spans over 1 mile require dedicated repeater trailers or high-gain antennas.", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity[cite: 4, 7]."}, {"qnum": "Q2", "category": "Logistics & Phasing", "question": "Type of road, construction only, public or private?", "ptl2": "MUTCD & NEMA TS-5 compliant; dual high-visibility heads standard for public highways.", "sq3ts": "MUTCD & NEMA TS-5 compliant; 100-mph wind load rating for high-speed public corridors.", "pts2000": "MUTCD & NEMA TS-5 compliant; Type 4 heavy trailer footprint designed for public/DOT roads.", "impact": "Determines statutory compliance, wind load ratings, and dual-head signal visibility standards.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q3", "category": "Logistics & Phasing", "question": "Are there any intersecting roads or driveways to be considered?", "ptl2": "Networks up to 20 trailers; Ring & Barrier software easily manages complex multi-leg phasing.", "sq3ts": "Supports up to 14 traffic phases per system; handles multi-leg intersection inputs.", "pts2000": "Galaxy\u00ae Controller supports up to 16 phases with pre-programmed multi-phase settings.", "impact": "Determines required trailer quantity and controller programming complexity.", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity[cite: 4, 7]."}, {"qnum": "Q4", "category": "Logistics & Phasing", "question": "Length of shifts, or is it 24 hour requirement?", "ptl2": "24/7 continuous duty; 400W solar array + 12 AGM batteries (660 Ah) give 24 days autonomy (up to 31 days with 16-battery upgrade)[cite: 7].", "sq3ts": "Built for 24/7 duty; 520W-600W lay-flat solar array + (16) 6V batteries give 30+ days autonomy.", "pts2000": "Built for 24/7 duty; STAR tilting solar array + bank of (8) 6V batteries give 21-30 days autonomy.", "impact": "Continuous 24/7 operations require specifying maximum deep-cycle battery banks.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q5", "category": "Logistics & Phasing", "question": "Job estimated duration?", "ptl2": "Heavy-duty ~3,000 lb trailer built for long-term multi-month/multi-year projects.", "sq3ts": "Heavy-duty platform with 25-year structural design life for extended field deployment.", "pts2000": "Heavy-duty Type 4 towable trailer built for medium-to-long term highway assignments.", "impact": "Long-term jobs justify heavy flagship trailers over lightweight portable units.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q6", "category": "Logistics & Phasing", "question": "Geological condition of job sites, forests, open farm land, existing roads?", "ptl2": "400W solar array features 360\u00b0 rotation and 0\u201360\u00b0 tilt to optimize charge under partial canopy; Yagi directional antenna bridges mountain terrain[cite: 4, 7].", "sq3ts": "High-wattage lay-flat solar resists wind; 900 MHz penetrates light foliage but needs repeaters for ridges.", "pts2000": "STAR solar array tilts/rotates for mountain angles; heavy ridges require elevated antenna masts.", "impact": "Identifies solar shading risks and mountain ridge blockages that dictate repeater placement.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q7", "category": "Logistics & Phasing", "question": "How many project locations require temporary traffic signals?", "ptl2": "Ring & Barrier controller handles multi-site deployment; easily reconfigurable.", "sq3ts": "Modular setup allowing flexible relocation and redeployment across multiple work zones.", "pts2000": "Pre-programmed settings allow fast reconfiguration when moving between locations.", "impact": "Determines total fleet count and ease of controller setup across multiple sites.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q8", "category": "Logistics & Phasing", "question": "Where are the project sites located (GPS coordinates or addresses)?", "ptl2": "Crucial for plotting elevation profiles and line-of-sight topographical obstructions in RF software.", "sq3ts": "Crucial for calculating Fresnel zone clearances and line-of-sight terrain blockages.", "pts2000": "Crucial for mapping terrain profile between trailer positions to determine repeater needs.", "impact": "Allows engineering team to run RF line-of-sight propagation modeling prior to deployment.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q9", "category": "Logistics & Phasing", "question": "Is this a single project or multiple phases?", "ptl2": "Supports easy expansion up to 20 units as project phases expand or shift.", "sq3ts": "Modular architecture allows adding/removing signal trailers seamlessly across phases.", "pts2000": "Galaxy\u00ae controller stores multiple site programs for fast phase transitions.", "impact": "Dictates modular equipment sizing and controller program storage requirements.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q10", "category": "Logistics & Phasing", "question": "What is the anticipated project duration at each location?", "ptl2": "Stowed length 175 in (4.45 m), width 85 in (2.16 m), weight 2,940 lbs (1,333.5 kg); stows compactly for transport[cite: 7].", "sq3ts": "Sizes solar bank requirements based on seasonal daylight variations per site.", "pts2000": "Dictates whether standard 8-battery or expanded battery options are needed.", "impact": "Ensures power reserves match the specific duration and season at each site.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q11", "category": "Logistics & Phasing", "question": "What are the expected start and completion dates?", "ptl2": "Winter/autumn starts require maximum solar wattage and 16-battery banks due to low sun angles.", "sq3ts": "520W-600W array handles low winter solar insolation windows effectively.", "pts2000": "STAR tilt array can be angled low toward southern horizon for winter deployments.", "impact": "Sunspeced solar calculations change drastically between winter and summer deployments.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q12", "category": "Logistics & Phasing", "question": "Will the signals remain in one location or be moved throughout the project?", "ptl2": "Electric actuator lift enables fast mast lowering for frequent highway towing relocation.", "sq3ts": "Hydraulic setup allows rapid tear-down and relocation along moving work zones.", "pts2000": "Type 4 trailer with retractable tongue designed for rapid highway relocation.", "impact": "Frequent relocations require electric/hydraulic mast lifts over manual winches.", "winner": "PTS-2000", "reason": "JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue."}, {"qnum": "Q13", "category": "Roadway & Traffic Ops", "question": "What is the roadway classification (township, county, state, private)?", "ptl2": "NEMA TS-5 compliant; accepted by PennDOT and major state DOTs for highway use.", "sq3ts": "NEMA TS-5 compliant; meets all state DOT safety and conflict specifications.", "pts2000": "NEMA TS-5 TR1 compliant; fully certified for county and state DOT specifications.", "impact": "Dictates permit requirements and mandatory conflict monitor specifications.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q14", "category": "Roadway & Traffic Ops", "question": "What is the posted speed limit?", "ptl2": "Dual 12\" LED signal heads (High-Low or High-High config) with Head B extending 66 in over laneway; meets MUTCD standards[cite: 7].", "sq3ts": "Dual overhead heads with 100-mph wind load rating designed for high-speed corridors.", "pts2000": "Dual-head configuration provides maximum advance visual warning for high-speed traffic.", "impact": "High speeds (>45 mph) necessitate dual overhead 12\" LED signal heads.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q15", "category": "Roadway & Traffic Ops", "question": "What is the average daily traffic (ADT), if known?", "ptl2": "High ADT routes benefit from optional radar/video actuation to minimize delays.", "sq3ts": "High ADT routes utilize overhead radar queue detection to extend green cycles dynamically.", "pts2000": "Supports microwave radar detection to adjust timing based on real-time traffic volume.", "impact": "High ADT requires dynamic radar actuation rather than fixed cycle timing.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q16", "category": "Roadway & Traffic Ops", "question": "Is the roadway paved or gravel?", "ptl2": "Heavy structural frame (~3,000 lbs) resists trailer shifting on unpaved shoulders.", "sq3ts": "Wide outrigger stance provides stability on loose gravel shoulders.", "pts2000": "Heavy-duty jack stands stabilize trailer on uneven gravel terrain.", "impact": "Unpaved/gravel shoulders require heavy outriggers and wide trailer bases.", "winner": "PTS-2000", "reason": "JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue."}, {"qnum": "Q17", "category": "Roadway & Traffic Ops", "question": "What is the roadway width?", "ptl2": "19-ft mast height ensures overhead signal heads extend properly over wide lanes.", "sq3ts": "Extendable overhead mast reaches across wide single-lane or multi-lane configurations.", "pts2000": "Adjustable mast arm provides proper overhead placement across varying lane widths.", "impact": "Ensures mast arm reach positions signal heads directly over the travel lane.", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity[cite: 4, 7]."}, {"qnum": "Q18", "category": "Roadway & Traffic Ops", "question": "Why is alternating one-way traffic required?", "ptl2": "Controls single-lane bottlenecks (bridge repair, land sliding, pipe replacement).", "sq3ts": "Controls automated one-lane alternating flow for restricted work zones.", "pts2000": "Manages alternating queue control with programmable red-clearance intervals.", "impact": "Establishes green/red clearance timing calculations based on bottleneck distance.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q19", "category": "Roadway & Traffic Ops", "question": "What is the length of the one-lane closure?", "ptl2": "Directly dictates all-red clearance interval timing programmed into controller.", "sq3ts": "Calculates required green extension and all-red clearance times in controller.", "pts2000": "Pre-programmed timing tables calculate clearance time based on zone length.", "impact": "Clearance time must allow slow heavy trucks to clear zone before opposite green.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q20", "category": "Roadway & Traffic Ops", "question": "Will the work zone length change during construction?", "ptl2": "Controller parameters easily updated on-site via 480p LCD screen as zone grows.", "sq3ts": "On-board keypad allows fast adjustments to all-red clearance times in the field.", "pts2000": "Galaxy\u00ae controller menu allows quick distance parameter updates on-site.", "impact": "Requires intuitive local programming interface for field adjustments without a laptop.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q21", "category": "Roadway & Traffic Ops", "question": "Will construction equipment regularly enter and exit the work zone?", "ptl2": "Supports work-zone equipment gate signals and manual push-button hold-green overrides.", "sq3ts": "Supports specialized work-zone ingress/egress signal phases and manual remotes.", "pts2000": "Can be equipped with contractor signal remotes for equipment entry priority.", "impact": "Requires contractor hand-held remotes or equipment actuation sensors.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q22", "category": "Roadway & Traffic Ops", "question": "Are oversized trucks or drilling equipment expected?", "ptl2": "Deployed wind load rating of 90 mph (144.84 km/h); high mast clearance (up to 21 ft)[cite: 7].", "sq3ts": "100-mph wind load frame withstands heavy wind turbulence from passing oversized loads.", "pts2000": "Robust mast structure prevents swaying from heavy truck air blasts.", "impact": "Tall loads require maximum mast clearance and secure overhead mounting.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q23", "category": "Roadway & Traffic Ops", "question": "Will traffic need to stop for blasting or specialized operations?", "ptl2": "Manual override push-button holds all approaches on RED during blasting/operations.", "sq3ts": "Local manual control switch allows immediate all-red hold for safety operations.", "pts2000": "Hand-held remote control allows flaggers/blasters to hold all-red from a safe distance.", "impact": "Requires hand-held radio remotes or manual panel switches for all-red holds.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q24", "category": "Roadway & Traffic Ops", "question": "Will traffic be maintained 24 hours per day?", "ptl2": "Nighttime dimming sensors automatically adjust LED brightness to prevent driver glare.", "sq3ts": "Automatic photocell dimming adjusts LED intensity for nighttime visibility.", "pts2000": "Photocell controlled automatic LED dimming for nighttime energy savings and safety.", "impact": "Night operation requires automatic photocell dimming to prevent blinding drivers.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q25", "category": "Roadway & Traffic Ops", "question": "Will the signals operate continuously or only during work hours?", "ptl2": "Programmable night/off-hour flash modes (e.g., yellow/red flash or shut-down schedule).", "sq3ts": "Supports scheduled operational modes and off-hour standby cycles.", "pts2000": "Galaxy\u00ae controller allows scheduled time-of-day operational mode switching.", "impact": "Determines whether signals run 24/7 active cycles or switch to yellow/red flash.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q26", "category": "Roadway & Traffic Ops", "question": "What are the anticipated peak traffic periods?", "ptl2": "Time-of-day signal timing plans adjust green allocation during morning/evening peaks.", "sq3ts": "Multiple daily timing plans dynamically shift cycle lengths for peak directional flow.", "pts2000": "Supports time-base scheduling for morning/evening peak traffic adjustments.", "impact": "Requires multi-plan scheduling capacity in controller to prevent peak-hour backups.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q27", "category": "Roadway & Traffic Ops", "question": "Is emergency vehicle access required?", "ptl2": "Interfaces with emergency vehicle preemption receivers (optical/radio priority).", "sq3ts": "Supports emergency vehicle preemption inputs to immediately force green light.", "pts2000": "Compatible with standard emergency preemption hardware for priority passage.", "impact": "High-risk corridors require optical/radio emergency vehicle preemption sensors.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q28", "category": "Roadway & Traffic Ops", "question": "Is school bus traffic expected?", "ptl2": "Extended clearance timing plans avoid trapping long school buses inside single-lane zone.", "sq3ts": "Programmable clearance intervals ensure safe throughput for slow accelerating buses.", "pts2000": "Custom timing plans accommodate school bus pickup schedules.", "impact": "Requires longer all-red clearance intervals to account for slow bus acceleration.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q29", "category": "Roadway & Traffic Ops", "question": "Are there local residents requiring frequent access?", "ptl2": "Driveway signal trailers or driveway actuation buttons integrate seamlessly into network.", "sq3ts": "Supports side-street/driveway signal integration with short green call intervals.", "pts2000": "Auxiliary signal heads handle local residential driveway integration.", "impact": "Prevents local residents from running red lights by providing driveway signals.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q30", "category": "Comms, Power & Env", "question": "Has anyone verified cellular service at the project site?", "ptl2": "CRITICAL: Zero cell service disables cellular remote monitoring; system operates seamlessly on local closed-loop 900 MHz RF[cite: 5, 7].", "sq3ts": "CRITICAL: Zero cell disables web app/cameras; system reverts to local 900 MHz closed-loop RF.", "pts2000": "CRITICAL: Zero cell disables remote management; system operates strictly on local RF link.", "impact": "Directly confirms that hardware MUST operate on closed-loop RF, not cellular/cloud.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q31", "category": "Comms, Power & Env", "question": "Which carriers provide coverage (AT&T, Verizon, T-Mobile)?", "ptl2": "Relevant only if remote monitoring is desired and cell signal exists (not applicable in zero-cell zone).", "sq3ts": "Relevant only if Street Smart app or Horizon remote monitoring is utilized.", "pts2000": "Relevant only if Galaxy Connect\u2122 cellular modem is deployed.", "impact": "Verifies if cellular modems can be used or if local RF is 100% required.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q32", "category": "Comms, Power & Env", "question": "Is any reliable cellular signal available?", "ptl2": "No cellular needed for core operation; closed-loop RF links units up to 7 miles apart using directional Yagi antennas[cite: 4, 5].", "sq3ts": "No cellular means camera streaming is disabled; relies entirely on local radio sync.", "pts2000": "No cellular means Galaxy Connect app is offline; relies on local controller timing.", "impact": "Eliminates reliance on web dashboards; forces focus on local closed-loop radio specs.", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity[cite: 4, 7]."}, {"qnum": "Q33", "category": "Comms, Power & Env", "question": "Is commercial power available nearby?", "ptl2": "Built-in 110V AC trickle chargers standard if AC shore power is accessible.", "sq3ts": "Includes standard AC shore power charger for supplemental battery charging.", "pts2000": "Equipped with onboard AC charger plug for fast generator/grid power recharge.", "impact": "Commercial power allows continuous battery trickle charging in shaded valleys.", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity[cite: 4, 7]."}, {"qnum": "Q34", "category": "Comms, Power & Env", "question": "Are generators permitted?", "ptl2": "Supports auxiliary generator connection to keep battery banks topped off in deep shade.", "sq3ts": "Onboard charger interfaces with portable diesel/gas generators for shade backup.", "pts2000": "Auxiliary generator backup supported for extreme low-sun winter conditions.", "impact": "Essential backup strategy for heavily shaded mountain sites with zero sun access.", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity[cite: 4, 7]."}, {"qnum": "Q35", "category": "Permits & Specs", "question": "Who is the permitting authority?", "ptl2": "Meets DOT, PennDOT, and county engineering specifications across all jurisdictions.", "sq3ts": "Fully certified across state and municipal road authority standards.", "pts2000": "Meets township, county, and state highway permitting requirements.", "impact": "Determines specific submittal paperwork and compliance certifications needed.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q36", "category": "Permits & Specs", "question": "Has a Maintenance and Protection of Traffic (MPT) or Traffic Control Plan been approved?", "ptl2": "Signal timing and trailer placement must strictly mirror approved MPT drawings.", "sq3ts": "Phasing and clearance intervals configured to match engineer-stamped MPT plan.", "pts2000": "Controller programmed in direct accordance with approved MPT timing schedule.", "impact": "Ensures signal cycle settings match approved traffic engineering plans.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q37", "category": "Permits & Specs", "question": "Is a professional engineer required to approve the signal layout?", "ptl2": "Provides full technical spec sheets and wind-load calculations for PE stamping.", "sq3ts": "100-mph wind load documentation and PE-stamped structural calculations available.", "pts2000": "PE documentation and NEMA TS-5 compliance sheets ready for submittal.", "impact": "Requires manufacturer PE submittal packet for formal engineering approval.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q38", "category": "Permits & Specs", "question": "Will PennDOT, the county, or a township inspect the installation?", "ptl2": "NEMA TS-5 and MUTCD compliant; integrated Malfunction Management System (MMS) and External Transfer Flasher Relay (TFR)[cite: 7].", "sq3ts": "Dual-processor MMS conflict monitor satisfies strict state/county inspector audits.", "pts2000": "NEMA TS-5 compliance ensures immediate pass rate during DOT site inspections.", "impact": "Guarantees installation passes physical DOT field inspector audits.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q39", "category": "Permits & Specs", "question": "Are there any special permit conditions?", "ptl2": "Flexible programming accommodates unique permit rules (e.g., maximum queue lengths).", "sq3ts": "Supports customized cycle limits or specific operational hours mandated by permit.", "pts2000": "Galaxy\u00ae controller easily adapts to specialized local permit restrictions.", "impact": "Identifies non-standard operating conditions required by local authorities.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q40", "category": "Permits & Specs", "question": "Can our technicians access the site with pickup trucks?", "ptl2": "Standard 2-5/16\" ball hitch or pintle hook allows easy towing via 3/4-ton pickup truck.", "sq3ts": "Towable by standard commercial pickup trucks with heavy-duty hitch receiver.", "pts2000": "Type 4 trailer designed for towing behind standard utility/service pickup trucks.", "impact": "Ensures standard service fleet trucks can tow and position equipment on-site.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q41", "category": "Permits & Specs", "question": "Are there weight restrictions?", "ptl2": "Trailer weight (~3,000 lbs) complies with standard bridge and unpaved road limits.", "sq3ts": "Compact heavy frame (~2,500 lbs) easily crosses weight-restricted rural bridges.", "pts2000": "Type 4 trailer weight fits well within rural road weight limit allowances.", "impact": "Verifies access over posted weight-limit rural/mountain bridges.", "winner": "PTS-2000", "reason": "JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue."}, {"qnum": "Q42", "category": "Permits & Specs", "question": "Will escorts be required?", "ptl2": "Rapid setup features allow fast off-road positioning to minimize escort window.", "sq3ts": "Quick-deploy outriggers reduce lane-blocking time during initial setup.", "pts2000": "Fast mechanical setup minimizes downtime and escort overhead during placement.", "impact": "Reduces labor costs and lane-closure downtime during trailer delivery.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q43", "category": "Permits & Specs", "question": "Is the site accessible during all weather conditions?", "ptl2": "Rugged enclosure protects batteries and electronics from severe snow/ice storms.", "sq3ts": "Heavy structural frame withstands severe mountain weather, snow, and 100-mph winds.", "pts2000": "Weatherproof NEMA cabinets protect controller from extreme freezing/mud.", "impact": "Guarantees hardware reliability during harsh winter/mountain weather.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q44", "category": "Permits & Specs", "question": "Who is the onsite contact for deliveries and service calls?", "ptl2": "Onboard storage box holds laminated quick-start guide for on-site personnel.", "sq3ts": "Clear cabinet labeling allows on-site contacts to communicate status via phone.", "pts2000": "User-friendly controller layout allows designated site contact to perform simple checks.", "impact": "Establishes local communication chain for routine equipment checks.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q45", "category": "Permits & Specs", "question": "Will you require 24/7 emergency support?", "ptl2": "Rugged closed-loop design minimizes service calls; local failure alarms on-site.", "sq3ts": "Dual-processor MMS prevents unsafe signal states during emergency faults.", "pts2000": "Built-in diagnostic logs allow quick troubleshooting during service calls.", "impact": "Dictates vendor/contractor technician dispatch SLA and emergency response protocol.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q46", "category": "Permits & Specs", "question": "How quickly must service personnel respond if a signal malfunctions?", "ptl2": "System automatically drops to red-flash safety mode upon fault detection.", "sq3ts": "Dual MMS guarantees fail-safe red flash protection while technician is en route.", "pts2000": "Automatic conflict shutdown ensures site safety during response window.", "impact": "Requires failsafe red-flash protection to maintain safety until tech arrives.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q47", "category": "Permits & Specs", "question": "Who will monitor the equipment during off-hours?", "ptl2": "In zero-cell zones, physical daily/weekly drive-by checks replace app alerts.", "sq3ts": "In zero-cell zones, visual inspection of external LED status lamps is required.", "pts2000": "External voltage meter allows instant visual inspection by off-hour guards.", "impact": "Establishes physical inspection protocol when remote cellular alerts are unavailable.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q48", "category": "Permits & Specs", "question": "Will daily inspections be required?", "ptl2": "External battery meters and clear status LEDs make daily drive-by checks instant.", "sq3ts": "External voltage display allows 5-second visual drive-by verification.", "pts2000": "Standard external voltage meter allows quick daily visual check from pickup cab.", "impact": "Ensures daily compliance logging can be performed quickly without opening cabinets.", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity[cite: 4, 7]."}, {"qnum": "Q49", "category": "Industry & Heavy Ops", "question": "Which operator or energy company owns the lease?", "ptl2": "Satisfies strict oil/gas operator safety and environmental compliance standards.", "sq3ts": "Meets heavy industrial and energy sector work-zone safety specifications.", "pts2000": "Meets industrial leasehold access traffic management requirements.", "impact": "Ensures equipment complies with specific energy/operator site safety rules.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q50", "category": "Permits & Specs", "question": "Will heavy haul water trucks use the route?", "ptl2": "Heavy-duty construction withstands constant ground vibration from heavy haulers.", "sq3ts": "100-mph wind load frame resists severe air blast and vibration from passing tankers.", "pts2000": "Type 4 trailer chassis resists vibration-induced component loosening.", "impact": "Heavy truck vibration requires locked component mounting and rugged trailer frames.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q51", "category": "Industry & Heavy Ops", "question": "What is the maximum truck volume expected per hour?", "ptl2": "Radar actuation adjusts green extension to prevent long queues of heavy water trucks.", "sq3ts": "Queue-detection radar extends green signal until heavy truck convoy clears.", "pts2000": "Microwave radar holds green light for heavy truck lines to maintain momentum.", "impact": "Heavy truck volume necessitates radar actuation to avoid stopping fully loaded trucks on grades.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q52", "category": "Industry & Heavy Ops", "question": "Are there periods when convoy traffic is expected?", "ptl2": "Programmable maximum green extensions accommodate long multi-truck convoys.", "sq3ts": "Extended green hold parameters prevent splitting heavy truck convoys.", "pts2000": "Galaxy\u00ae controller adjusts phase duration to clear entire truck convoys.", "impact": "Prevents signal from cutting off half of a heavy truck convoy mid-zone.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q53", "category": "Industry & Heavy Ops", "question": "Will drilling or fracking operations require around-the-clock access?", "ptl2": "30-day autonomous battery/solar reserve ensures non-stop 24/7 industrial runtime.", "sq3ts": "600W solar capacity supports continuous high-frequency 24/7 industrial traffic.", "pts2000": "Heavy battery bank supports non-stop 24/7 industrial haulage cycles.", "impact": "Continuous 24/7 industrial traffic requires maximum solar and battery capacity.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q54", "category": "Industry & Heavy Ops", "question": "Are there any hazardous-material transportation requirements?", "ptl2": "Failsafe red-flash conflict monitoring prevents hazardous material collisions.", "sq3ts": "Dual-processor MMS conflict monitoring provides maximum safety for HAZMAT routes.", "pts2000": "NEMA TS-5 compliance ensures strict safety controls for HAZMAT transport.", "impact": "HAZMAT routes require top-tier redundant conflict monitoring hardware.", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q55", "category": "Industry & Heavy Ops", "question": "Is there a designated emergency evacuation route?", "ptl2": "Manual hold-green preemption clears evacuation traffic instantly if needed.", "sq3ts": "Emergency preemption inputs allow immediate flush of evacuation corridors.", "pts2000": "Manual override capabilities enable quick clearing of emergency traffic.", "impact": "Requires manual override or preemption capability to clear corridor during emergencies.", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating[cite: 4, 7]."}, {"qnum": "Q56", "category": "Industry & Heavy Ops", "question": "Will dust, mud, or snow impact signal visibility or operation?", "ptl2": "Sealed NEMA 4 weather-proof cabinets protect electronics; visor hoods protect LEDs.", "sq3ts": "Enclosed weatherproof battery/control boxes keep out heavy dust, mud, and snow.", "pts2000": "Weatherproof cabinet design with hooded LED visors prevents snow buildup.", "impact": "Demands NEMA 4 weatherproof enclosures and high-visibility LED visor hoods.", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity[cite: 4, 7]."}];
-        let currentIndex = 0;
-        let clientAnswers = {};
+        // Full dataset of 56 Questions
+        const rawData = [{"qnum": "Q1", "category": "Logistics & Phasing", "question": "What is the maximum length of the road closures?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q2", "category": "Logistics & Phasing", "question": "Type of road, construction only, public or private?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q3", "category": "Logistics & Phasing", "question": "Are there any intersecting roads or driveways to be considered?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q4", "category": "Logistics & Phasing", "question": "Length of shifts, or is it 24 hour requirement?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q5", "category": "Logistics & Phasing", "question": "Job estimated duration?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q6", "category": "Logistics & Phasing", "question": "Geological condition of job sites, forests, open farm land, existing roads?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q7", "category": "Logistics & Phasing", "question": "How many project locations require temporary traffic signals?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q8", "category": "Logistics & Phasing", "question": "Where are the project sites located (GPS coordinates or addresses)?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q9", "category": "Logistics & Phasing", "question": "Is this a single project or multiple phases?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q10", "category": "Logistics & Phasing", "question": "What is the anticipated project duration at each location?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q11", "category": "Logistics & Phasing", "question": "What are the expected start and completion dates?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q12", "category": "Logistics & Phasing", "question": "Will the signals remain in one location or be moved throughout the project?", "winner": "PTS-2000", "reason": "JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue."}, {"qnum": "Q13", "category": "Roadway & Traffic Ops", "question": "What is the roadway classification (township, county, state, private)?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q14", "category": "Roadway & Traffic Ops", "question": "What is the posted speed limit?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q15", "category": "Roadway & Traffic Ops", "question": "What is the average daily traffic (ADT), if known?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q16", "category": "Roadway & Traffic Ops", "question": "Is the roadway paved or gravel?", "winner": "PTS-2000", "reason": "JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue."}, {"qnum": "Q17", "category": "Roadway & Traffic Ops", "question": "What is the roadway width?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q18", "category": "Roadway & Traffic Ops", "question": "Why is alternating one-way traffic required?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q19", "category": "Roadway & Traffic Ops", "question": "What is the length of the one-lane closure?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q20", "category": "Roadway & Traffic Ops", "question": "Will the work zone length change during construction?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q21", "category": "Roadway & Traffic Ops", "question": "Will construction equipment regularly enter and exit the work zone?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q22", "category": "Roadway & Traffic Ops", "question": "Are oversized trucks or drilling equipment expected?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q23", "category": "Roadway & Traffic Ops", "question": "Will traffic need to stop for blasting or specialized operations?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q24", "category": "Roadway & Traffic Ops", "question": "Will traffic be maintained 24 hours per day?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q25", "category": "Roadway & Traffic Ops", "question": "Will the signals operate continuously or only during work hours?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q26", "category": "Roadway & Traffic Ops", "question": "What are the anticipated peak traffic periods?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q27", "category": "Roadway & Traffic Ops", "question": "Is emergency vehicle access required?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q28", "category": "Roadway & Traffic Ops", "question": "Is school bus traffic expected?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q29", "category": "Roadway & Traffic Ops", "question": "Are there local residents requiring frequent access?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q30", "category": "Comms, Power & Env", "question": "Has anyone verified cellular service at the project site?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q31", "category": "Comms, Power & Env", "question": "Which carriers provide coverage (AT&T, Verizon, T-Mobile)?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q32", "category": "Comms, Power & Env", "question": "Is any reliable cellular signal available?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q33", "category": "Comms, Power & Env", "question": "Is commercial power available nearby?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q34", "category": "Comms, Power & Env", "question": "Are generators permitted?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q35", "category": "Permits & Specs", "question": "Who is the permitting authority?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q36", "category": "Permits & Specs", "question": "Has a Maintenance and Protection of Traffic (MPT) or Traffic Control Plan been approved?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q37", "category": "Permits & Specs", "question": "Is a professional engineer required to approve the signal layout?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q38", "category": "Permits & Specs", "question": "Will PennDOT, the county, or a township inspect the installation?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q39", "category": "Permits & Specs", "question": "Are there any special permit conditions?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q40", "category": "Permits & Specs", "question": "Can our technicians access the site with pickup trucks?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q41", "category": "Permits & Specs", "question": "Are there weight restrictions?", "winner": "PTS-2000", "reason": "JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue."}, {"qnum": "Q42", "category": "Permits & Specs", "question": "Will escorts be required?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q43", "category": "Permits & Specs", "question": "Is the site accessible during all weather conditions?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q44", "category": "Permits & Specs", "question": "Who is the onsite contact for deliveries and service calls?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q45", "category": "Permits & Specs", "question": "Will you require 24/7 emergency support?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q46", "category": "Permits & Specs", "question": "How quickly must service personnel respond if a signal malfunctions?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q47", "category": "Permits & Specs", "question": "Who will monitor the equipment during off-hours?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q48", "category": "Permits & Specs", "question": "Will daily inspections be required?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}, {"qnum": "Q49", "category": "Industry & Heavy Ops", "question": "Which operator or energy company owns the lease?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q50", "category": "Permits & Specs", "question": "Will heavy haul water trucks use the route?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q51", "category": "Industry & Heavy Ops", "question": "What is the maximum truck volume expected per hour?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q52", "category": "Industry & Heavy Ops", "question": "Are there periods when convoy traffic is expected?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q53", "category": "Industry & Heavy Ops", "question": "Will drilling or fracking operations require around-the-clock access?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with its 520W-600W lay-flat solar array and 100-mph wind load design life."}, {"qnum": "Q54", "category": "Industry & Heavy Ops", "question": "Are there any hazardous-material transportation requirements?", "winner": "SQ3TS", "reason": "Horizon SQ3TS wins with native overhead radar queue-detection and redundant dual-processor MMS monitoring."}, {"qnum": "Q55", "category": "Industry & Heavy Ops", "question": "Is there a designated emergency evacuation route?", "winner": "PTL2-4X", "reason": "PTL2-4X leads with 20-trailer networking, 7-mile Yagi directional RF range, 31-day AGM battery autonomy, and 90-mph wind rating."}, {"qnum": "Q56", "category": "Industry & Heavy Ops", "question": "Will dust, mud, or snow impact signal visibility or operation?", "winner": "PTL2-4X", "reason": "North America Traffic PTL2-4X wins with its 7-mile Yagi directional RF range, 31-day AGM battery backup, and 20-trailer capacity."}];
 
-        function renderSidebar() {
-            const listEl = document.getElementById('q-list');
-            listEl.innerHTML = '';
+        let answeredCount = 0;
+
+        // Group data by category
+        const categories = {};
+        rawData.forEach((q, i) => {
+            if (!categories[q.category]) categories[q.category] = [];
+            q.globalIndex = i;
+            categories[q.category].push(q);
+        });
+
+        const sidebar = document.getElementById('sidebar-nav');
+        const mainForm = document.getElementById('audit-form-container');
+
+        // Build the layout dynamically
+        Object.keys(categories).forEach(cat => {
+            const catId = cat.replace(/\s+/g, '-').replace('&', 'and').toLowerCase();
             
-            rawData.forEach((q, idx) => {
-                const item = document.createElement('div');
-                item.className = `q-item ${idx === currentIndex ? 'active' : ''}`;
-                item.onclick = () => selectQuestion(idx);
-                
-                const hasAnswer = clientAnswers[idx] && clientAnswers[idx].trim() !== '';
-                const answerBadge = hasAnswer ? `<span class="badge-answered">✓ Answered</span>` : '';
+            // Add sidebar link
+            const link = document.createElement('a');
+            link.href = `#${catId}`;
+            link.className = 'cat-link';
+            link.innerText = cat;
+            sidebar.appendChild(link);
 
-                item.innerHTML = `
-                    <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
-                        <div style="display:flex; align-items:center;">
-                            <span class="q-item-num">${q.qnum}</span>
-                            <span class="q-item-title">${q.question}</span>
-                        </div>
-                        ${answerBadge}
+            // Add main section
+            const section = document.createElement('div');
+            section.className = 'category-section';
+            section.id = catId;
+            
+            const header = document.createElement('div');
+            header.className = 'category-header';
+            header.innerText = cat;
+            section.appendChild(header);
+
+            // Add questions to section
+            categories[cat].forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'q-card';
+                card.innerHTML = `
+                    <div class="q-header">
+                        <span class="q-num">${q.qnum}</span>
+                        <span class="q-text">${q.question}</span>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="ans-${q.globalIndex}" class="text-bubble" placeholder="Type client's answer here..." onkeypress="handleKeyPress(event, ${q.globalIndex})">
+                        <button class="eval-btn" onclick="evaluateAnswer(${q.globalIndex})">Evaluate Best Unit</button>
+                    </div>
+                    <div class="result-banner" id="res-${q.globalIndex}">
+                        <span class="winner-tag" id="tag-${q.globalIndex}"></span>
+                        <span class="reason-text" id="reason-${q.globalIndex}"></span>
                     </div>
                 `;
-                listEl.appendChild(item);
+                section.appendChild(card);
             });
 
-            document.getElementById('question-count').innerText = `${rawData.length} Questions`;
-            updateOverallSummary();
+            mainForm.appendChild(section);
+        });
+
+        function handleKeyPress(e, idx) {
+            if (e.key === 'Enter') evaluateAnswer(idx);
         }
 
-        function renderCard() {
-            const q = rawData[currentIndex];
+        function evaluateAnswer(idx) {
+            const q = rawData[idx];
+            const ansBox = document.getElementById(`ans-${idx}`);
+            const resBanner = document.getElementById(`res-${idx}`);
+            const tagEl = document.getElementById(`tag-${idx}`);
+            const reasonEl = document.getElementById(`reason-${idx}`);
             
-            document.getElementById('card-cat').innerText = q.category;
-            document.getElementById('card-qnum').innerText = `Question ${currentIndex + 1} of ${rawData.length} (${q.qnum})`;
-            document.getElementById('card-question').innerText = q.question;
+            const ansText = ansBox.value.toLowerCase().trim();
             
-            document.getElementById('card-ptl2').innerText = q.ptl2;
-            document.getElementById('card-sq3ts').innerText = q.sq3ts;
-            document.getElementById('card-pts2000').innerText = q.pts2000;
-
-            const savedAns = clientAnswers[currentIndex] || '';
-            document.getElementById('client-answer-input').value = savedAns;
-
-            evaluateCurrentAnswer();
-
-            document.getElementById('progress-indicator').innerText = `${currentIndex + 1} / ${rawData.length}`;
-            renderSidebar();
-        }
-
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') {
-                evaluateCurrentAnswer();
-            }
-        }
-
-        function evaluateCurrentAnswer() {
-            const q = rawData[currentIndex];
-            const ansText = document.getElementById('client-answer-input').value.toLowerCase().trim();
-            
-            if (ansText !== '') {
-                clientAnswers[currentIndex] = ansText;
+            // If it's the first time evaluating this question, increment counter
+            if (!ansBox.dataset.answered && ansText !== '') {
+                ansBox.dataset.answered = "true";
+                answeredCount++;
+                document.getElementById('answered-count').innerText = `${answeredCount} / 56`;
             }
 
             let winningUnit = q.winner;
-            let explanation = `Default Question Capability: ${q.reason}`;
+            let explanation = `Standard Capability Match: ${q.reason}`;
 
             if (ansText !== '') {
+                // Feature keyword correlation
                 if (ansText.includes('7 mile') || ansText.includes('yagi') || ansText.includes('mountain') || ansText.includes('zero cell') || ansText.includes('20') || ansText.includes('30 days') || ansText.includes('agm')) {
-                    winningUnit = 'PTL2-4X';
-                    explanation = `Based on client answer ("${ansText}"): PTL2.4x wins due to its 7-mile Yagi RF capability, 31-day AGM battery backup, and 20-trailer expansion[cite: 4, 7].`;
+                    winningUnit = 'PTL2.4x';
+                    explanation = `Correlated Feature Match: PTL2.4x wins due to its 7-mile Yagi RF capability, 31-day AGM battery backup, and 20-trailer network capacity.`;
                 } else if (ansText.includes('solar') || ansText.includes('lay flat') || ansText.includes('lay-flat') || ansText.includes('wind') || ansText.includes('100 mph') || ansText.includes('radar') || ansText.includes('mms')) {
-                    winningUnit = 'SQ3TS';
-                    explanation = `Based on client answer ("${ansText}"): Horizon SQ3TS wins due to its high-wattage lay-flat solar array and 100-mph wind load design.`;
+                    winningUnit = 'Horizon SQ3TS';
+                    explanation = `Correlated Feature Match: Horizon SQ3TS wins due to its high-wattage lay-flat solar array and 100-mph wind load design.`;
                 } else if (ansText.includes('compact') || ansText.includes('gravel') || ansText.includes('tight') || ansText.includes('shoulder') || ansText.includes('tongue')) {
-                    winningUnit = 'PTS-2000';
-                    explanation = `Based on client answer ("${ansText}"): JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue.`;
+                    winningUnit = 'JTi PTS-2000';
+                    explanation = `Correlated Feature Match: JTi PTS-2000 wins due to its compact Type 4 trailer footprint and retractable towing tongue.`;
                 } else {
-                    explanation = `Based on client answer ("${ansText}"): Evaluated against question criteria. Recommended signal for this feature is ${q.winner}. (${q.reason})`;
+                    explanation = `Based on answer "${ansText}": Recommended unit defaults to ${q.winner}. (${q.reason})`;
                 }
             }
 
-            document.getElementById('match-unit-tag').innerText = `BEST SIGNAL: ${winningUnit}`;
-            document.getElementById('match-explanation-text').innerText = explanation;
-
-            const ptl2Box = document.getElementById('card-ptl2-box');
-            const sq3tsBox = document.getElementById('card-sq3ts-box');
-            const pts2000Box = document.getElementById('card-pts2000-box');
-
-            ptl2Box.classList.remove('winner');
-            sq3tsBox.classList.remove('winner');
-            pts2000Box.classList.remove('winner');
-
-            if (winningUnit === 'PTL2-4X') ptl2Box.classList.add('winner');
-            else if (winningUnit === 'SQ3TS') sq3tsBox.classList.add('winner');
-            else if (winningUnit === 'PTS-2000') pts2000Box.classList.add('winner');
-
-            updateOverallSummary();
+            tagEl.innerText = `WINNER: ${winningUnit}`;
+            reasonEl.innerText = explanation;
+            resBanner.classList.add('active');
+            
+            // Highlight animation
+            ansBox.style.borderColor = '#CCFF00';
+            setTimeout(() => ansBox.style.borderColor = '#233529', 1000);
         }
-
-        function updateOverallSummary() {
-            const answeredCount = Object.keys(clientAnswers).filter(k => clientAnswers[k] && clientAnswers[k].trim() !== '').length;
-            document.getElementById('answered-count').innerText = answeredCount;
-        }
-
-        function selectQuestion(idx) { currentIndex = idx; renderCard(); }
-        function prevQuestion() { if (currentIndex > 0) { currentIndex--; renderCard(); } }
-        function nextQuestion() { if (currentIndex < rawData.length - 1) { currentIndex++; renderCard(); } }
-
-        renderCard();
     </script>
 </body>
 </html>
