@@ -237,7 +237,7 @@
             overflow-y: auto;
             font-family: inherit;
             color: #F1F5F9;
-            line-height: 1.7;
+            line-height: 1.8;
             font-size: 0.95rem;
         }
         .sow-modal-footer {
@@ -290,29 +290,8 @@
         }
         .contract-p {
             color: #CBD5E1;
-            margin-bottom: 0.75rem;
-            text-align: justify;
-        }
-        .spec-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
             margin-bottom: 1rem;
-        }
-        .spec-table th, .spec-table td {
-            border: 1px solid #233529;
-            padding: 0.75rem 1rem;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-        .spec-table th {
-            background: #0A0F0D;
-            color: #CCFF00;
-            font-weight: 700;
-        }
-        .spec-table td {
-            background: #141E18;
-            color: #E2E8F0;
+            text-align: justify;
         }
 
         /* Mobile & Tablet Responsive Media Queries */
@@ -522,7 +501,24 @@
             }
         }
 
-        // Generate formal Contractual SOW without any hardware unit mentions
+        // Helper to convert questions into flowing context
+        function formatIntoSentence(question, answer) {
+            let qClean = question.trim();
+            if (qClean.endsWith('?')) {
+                qClean = qClean.slice(0, -1);
+            }
+            
+            let lowerQ = qClean.toLowerCase();
+            if (lowerQ.startsWith('what is') || lowerQ.startsWith('what are') || lowerQ.startsWith('which')) {
+                return `The ${qClean.replace(/^(what is|what are|which)\s+/i, '')} is ${answer}.`;
+            } else if (lowerQ.startsWith('are there') || lowerQ.startsWith('is there') || lowerQ.startsWith('is this') || lowerQ.startsWith('will')) {
+                return `Regarding whether ${lowerQ}, ${answer}.`;
+            } else {
+                return `For ${lowerQ}, ${answer}.`;
+            }
+        }
+
+        // Generate formal Contractual SOW with flowing prose paragraphs
         function generateContractSOW() {
             const modal = document.getElementById('sow-modal');
             const bodyContent = document.getElementById('sow-body-content');
@@ -536,7 +532,7 @@
 
             let html = `
                 <div class="contract-title">Statement of Work (SOW)</div>
-                <div class="contract-subtitle">Temporary Traffic Control & Operational Requirements Agreement</div>
+                <div class="contract-subtitle">Temporary Traffic Control & Operational Scope Agreement</div>
 
                 <div class="contract-section">
                     <div class="contract-heading">1. Project Overview & Scope Authorization</div>
@@ -544,8 +540,7 @@
                 </div>
 
                 <div class="contract-section">
-                    <div class="contract-heading">2. Project Audit Parameters & Site Requirements</div>
-                    <p class="contract-p">The following site-specific operational parameters have been audited, confirmed, and established as the governing specifications for project execution:</p>
+                    <div class="contract-heading">2. Project Operational Parameters & Site Scope</div>
             `;
 
             const groupedSOW = {};
@@ -556,16 +551,15 @@
             });
 
             Object.keys(groupedSOW).forEach(cat => {
-                html += `<div style="margin-top: 1.25rem; font-weight: 700; color: #CCFF00; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">${cat}</div>`;
-                html += `<table class="spec-table">`;
-                html += `<tr><th style="width: 45%;">Audit Parameter / Requirement</th><th style="width: 55%;">Confirmed Client Specification</th></tr>`;
+                html += `<div style="margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 700; color: #CCFF00; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">${cat}</div>`;
+                
+                let paragraphText = "<p class=\"contract-p\">";
                 groupedSOW[cat].forEach(entry => {
-                    html += `<tr>`;
-                    html += `<td><strong>[${entry.qnum}] ${entry.question}</strong></td>`;
-                    html += `<td><em>"${entry.answer}"</em></td>`;
-                    html += `</tr>`;
+                    paragraphText += formatIntoSentence(entry.question, entry.answer) + " ";
                 });
-                html += `</table>`;
+                paragraphText += "</p>";
+                
+                html += paragraphText;
             });
 
             html += `
