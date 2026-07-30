@@ -501,7 +501,7 @@
             }
         }
 
-        // Helper to convert questions into flowing context
+        // Helper to convert questions into flowing context (e.g., "The maximum length of road closures will be 7 miles.")
         function formatIntoSentence(question, answer) {
             let qClean = question.trim();
             if (qClean.endsWith('?')) {
@@ -510,7 +510,7 @@
             
             let lowerQ = qClean.toLowerCase();
             if (lowerQ.startsWith('what is') || lowerQ.startsWith('what are') || lowerQ.startsWith('which')) {
-                return `The ${qClean.replace(/^(what is|what are|which)\s+/i, '')} is ${answer}.`;
+                return `The ${qClean.replace(/^(what is|what are|which)\s+/i, '')} will be ${answer}.`;
             } else if (lowerQ.startsWith('are there') || lowerQ.startsWith('is there') || lowerQ.startsWith('is this') || lowerQ.startsWith('will')) {
                 return `Regarding whether ${lowerQ}, ${answer}.`;
             } else {
@@ -518,7 +518,7 @@
             }
         }
 
-        // Generate formal Contractual SOW with flowing prose paragraphs
+        // Generate formal Contractual SOW with pure flowing prose paragraphs (NO category titles, NO tables)
         function generateContractSOW() {
             const modal = document.getElementById('sow-modal');
             const bodyContent = document.getElementById('sow-body-content');
@@ -543,24 +543,15 @@
                     <div class="contract-heading">2. Project Operational Parameters & Site Scope</div>
             `;
 
-            const groupedSOW = {};
+            // Combine all answered questions into a single cohesive flowing paragraph without any category headings or tables
+            let combinedParagraph = "<p class=\"contract-p\">";
             answeredIndices.forEach(idx => {
                 const item = clientAnswersStore[idx];
-                if (!groupedSOW[item.category]) groupedSOW[item.category] = [];
-                groupedSOW[item.category].push(item);
+                combinedParagraph += formatIntoSentence(item.question, item.answer) + " ";
             });
+            combinedParagraph += "</p>";
 
-            Object.keys(groupedSOW).forEach(cat => {
-                html += `<div style="margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 700; color: #CCFF00; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">${cat}</div>`;
-                
-                let paragraphText = "<p class=\"contract-p\">";
-                groupedSOW[cat].forEach(entry => {
-                    paragraphText += formatIntoSentence(entry.question, entry.answer) + " ";
-                });
-                paragraphText += "</p>";
-                
-                html += paragraphText;
-            });
+            html += combinedParagraph;
 
             html += `
                 </div>
